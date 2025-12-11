@@ -224,8 +224,16 @@ Look for section headers: "FINANCE TERMS", "Finance", "1.5 Finance Terms", "Subj
 
 | Field | Extraction Rules |
 |-------|------------------|
-| `terms` | Extract the **exact phrase** as written in the document |
+| `terms` | Extract the **KEY PHRASE** only - normalize to concise form (see examples below) |
 | `is_subject_to_finance` | Parse boolean value using logic below |
+
+**Finance Terms Normalization**:
+- Extract the core statement about finance, removing extra context
+- Examples:
+  - "This Contract IS SUBJECT TO FINANCE. ← Incorrect" → `"IS SUBJECT TO FINANCE"`
+  - "This Contract is NOT subject to finance, as confirmed in the Expression of Interest received." → `"NOT subject to finance"`
+  - "Not Subject to Finance" → `"Not Subject to Finance"` (already concise)
+- Remove trailing punctuation, annotations (like "← Incorrect"), and explanatory clauses
 
 **Finance Term Boolean Logic**:
 
