@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-11T12:15:00Z
+**Last Updated:** 2025-12-11T12:30:00Z
 **Current Phase:** 1 (Utilities First)
-**Current Task:** 1.2
+**Current Task:** 1.3
 
 ---
 
@@ -15,7 +15,7 @@
 
 ### Phase 1 – Utilities First
 - [x] 1.1 – Implement `pdf_parser` Utilities
-- [ ] 1.2 – Implement `email_parser` Utilities
+- [x] 1.2 – Implement `email_parser` Utilities
 - [ ] 1.3 – Implement `date_resolver` for Appointment Phrases
 - [ ] 1.4 – Write Utility Tests (`tests/test_utils.py`)
 
@@ -66,6 +66,7 @@
 - **0.2** (2025-12-11T11:50:00Z) - Initialized src/ package structure; all __init__.py files already exist and all packages (src, src.agents, src.agents.prompts, src.utils, src.orchestrator) import successfully
 - **0.3** (2025-12-11T12:00:00Z) - Created tests/conftest.py with pytest fixtures for all ground truth files (eoi_extracted, v1_extracted, v2_extracted, v1_mismatches, expected_outputs, emails_manifest) and path fixtures for PDFs and email directories
 - **1.1** (2025-12-11T12:15:00Z) - Implemented pdf_parser.py with read_pdf_text(), read_pdf_pages(), extract_tables_from_pdf(), and get_pdf_metadata() functions using pdfplumber. All functions include proper error handling, type hints, and docstrings. Verified successful extraction from all demo PDFs (EOI, V1, V2)
+- **1.2** (2025-12-11T12:30:00Z) - Implemented email_parser.py with parse_email_file(), parse_emails_from_directory(), and ParsedEmail dataclass. Parser handles both comma and semicolon-separated email lists, extracts headers (From/To/Cc/Subject), body, and attachments. Validated against all 7 incoming emails in manifest with 100% match rate
 
 ### Current Task Notes
 
@@ -80,11 +81,11 @@ _None._
 ## Quick Reference
 
 **Total Tasks:** 31
-**Completed:** 4
-**Remaining:** 27
-**Progress:** 13%
+**Completed:** 5
+**Remaining:** 26
+**Progress:** 16%
 
-**Next Task:** 1.2 – Implement `email_parser` Utilities
+**Next Task:** 1.3 – Implement `date_resolver` for Appointment Phrases
 
 ---
 
