@@ -1,0 +1,195 @@
+onecorp-mas/
+  CLAUDE.md
+    # Master instructions for Claude Code: project overview, critical rules,
+    # agent architecture summary, file locations, and links to agent_docs/.
+
+  README.md
+    # High-level overview, quick start commands (how to run main demo + tests),
+    # short description of agents, and links to key docs in docs/ and spec/.
+
+  agent_docs/
+    # Implementation guides for Claude Code when building each agent.
+    # These are technical references with code snippets, schemas, and test patterns.
+    
+    extraction.md
+      # Extractor agent guide: required fields table, ground truth values,
+      # output schema, confidence scoring rules, finance terms parsing,
+      # re-extraction pattern, PDF parsing code snippets.
+    
+    comparison.md
+      # Auditor agent guide: the 5 known V1 mismatches (with exact values),
+      # severity classification rules, risk score logic, output schema,
+      # verification loop pattern, amendment recommendation generation.
+    
+    emails.md
+      # Router + Comms agent guide: email classification event types,
+      # sender-based hints, subject line patterns, appointment date resolution,
+      # all 4 generated email templates (with exact formatting),
+      # email triggers table.
+    
+    state-machine.md
+      # Orchestrator guide: full state list (15 states), simplified demo view (7 states),
+      # state transition rules (text + ASCII diagram), versioning guardrails,
+      # SLA timer scheduling and evaluation logic, deal data model.
+    
+    testing.md
+      # Testing guide: test file purposes, pytest commands, ground truth fixtures,
+      # complete test structure examples for each test file,
+      # debugging tips.
+
+  docs/
+    INDEX.md
+      # Documentation index with recommended reading order.
+    
+    architecture.md
+      # Narrative + diagram of agents (router, extractor, auditor, comms, orchestrator),
+      # their responsibilities, models used, and how messages flow between them.
+      # Includes multi-agent collaboration patterns and data flow diagrams.
+    
+    
+    demo-script.md
+      # 3-minute demo script:
+      #   - exact CLI commands or steps to run the demo,
+      #   - which logs/prints to point at for each phase,
+      #   - storyline: V1 rejected → discrepancy alert → V2 validated → solicitor →
+      #     approval → vendor release → DocuSign emails → executed → SLA test.
+
+  spec/
+    MAS_Brief.md
+      # Clean markdown version of the challenge brief — source of truth for required fields,
+      # workflow requirements, and success criteria.
+    
+    judging-criteria.md
+      # Markdown copy of judging guide; reference for how judges score.
+    
+    transcript.md
+      # Markdown copy of OneCorp transcript giving business context and narrative.
+
+  data/
+    source-of-truth/
+      EOI_John_JaneSmith.pdf
+        # Original EOI PDF (unchanged) — canonical source of truth for deal fields.
+
+    contracts/
+      CONTRACT_V1.pdf
+        # Incorrect contract PDF — has 5 known discrepancies vs EOI.
+      CONTRACT_V2.pdf
+        # Corrected contract PDF — should match EOI exactly.
+
+    emails/
+      incoming/
+        01_eoi_signed.txt
+          # Raw email body for "EOI Signed" — triggers deal creation.
+        02_contract_v1_received.txt
+          # Email from vendor sending incorrect contract (V1) as attachment.
+        02b_contract_v2_received.txt
+          # Email from vendor sending corrected contract (V2) as attachment.
+        04_solicitor_approved.txt
+          # Email from solicitor confirming approval and signing appointment time.
+        06_docusign_please_sign.txt
+          # DocuSign "please sign" email to buyers — triggers DOCUSIGN_RELEASED.
+        07_buyer_signed.txt
+          # DocuSign "buyer signed" email — triggers BUYER_SIGNED state.
+        08_contract_executed.txt
+          # DocuSign "completed/executed" email — triggers EXECUTED state.
+
+      templates/
+        03_contract_to_solicitor.txt
+          # OUTGOING TEMPLATE — contract-to-solicitor email format.
+        05_vendor_release_request.txt
+          # OUTGOING TEMPLATE — "please release via DocuSign" email format.
+
+    emails_manifest.json
+      # JSON manifest describing the email dataset: id, filename, subject,
+      # from, to, cc, timestamp, attachments, expected_event for each email.
+
+  ground-truth/
+    eoi_extracted.json
+      # Expected structured extraction from EOI PDF — all fields with values.
+    v1_extracted.json
+      # Expected structured extraction from CONTRACT_V1.pdf.
+    v2_extracted.json
+      # Expected structured extraction from CONTRACT_V2.pdf.
+    v1_mismatches.json
+      # List of 5 mismatches between EOI and V1: field, eoi_value, contract_value, severity.
+    expected_outputs.json
+      # Canonical reference outputs: expected emails at each workflow stage.
+
+  src/
+    __init__.py
+      # Marks src/ as a Python package.
+    
+    agents/
+      __init__.py
+        # Agent registry or convenience imports.
+      router.py
+        # Email triage and event classification.
+        # Main: classify_email(parsed_email) → Event
+      extractor.py
+        # Document field extraction for EOI and contracts.
+        # Main: extract_eoi(pdf_path) → dict, extract_contract(pdf_path) → dict
+      auditor.py
+        # Comparison & validation logic.
+        # Main: compare_contract_to_eoi(eoi_data, contract_data) → ComparisonResult
+      comms.py
+        # Email generation.
+        # Main: build_*_email(context) → Email for each email type
+      
+      prompts/
+        router_prompt.md
+          # LLM prompt for router agent.
+        extractor_prompt.md
+          # LLM prompt for extractor agent.
+        auditor_prompt.md
+          # LLM prompt for auditor/comparison agent.
+        comms_prompt.md
+          # LLM prompt for comms agent.
+
+    orchestrator/
+      __init__.py
+      state_machine.py
+        # Workflow state machine: State enum, transition rules, guards.
+      deal_store.py
+        # SQLite wrapper for persisting deals and events.
+      sla_monitor.py
+        # SLA timer scheduling and evaluation logic.
+
+    utils/
+      pdf_parser.py
+        # PDF text extraction utilities.
+      date_resolver.py
+        # Converts relative dates ("Thursday at 11:30am") to concrete datetimes.
+      email_parser.py
+        # Parses raw .txt email files into structured objects.
+
+    main.py
+      # Entry point for running the demo end-to-end.
+
+  tests/
+    README.md
+      # Test documentation: how to run, what each file tests, fixtures used.
+    
+    conftest.py
+      # Shared pytest fixtures (eoi_data, v1_data, v2_data, etc.)
+    
+    test_extraction.py
+      # Tests that extractor outputs match ground truth JSONs.
+    test_comparison.py
+      # Tests that auditor finds all V1 mismatches, none in V2.
+    test_email_classification.py
+      # Tests router classification of each email into correct event type.
+    test_state_transitions.py
+      # Tests state machine transitions and guardrails.
+    test_end_to_end.py
+      # Full workflow integration test with all emails.
+
+  n8n/
+    workflow.json
+      # Exported n8n workflow (if using n8n for orchestration).
+
+  assets/
+    workflow_diagram.jpeg
+      # Visual workflow/architecture diagram for docs and presentation.
+
+  requirements.txt
+    # Python dependencies: anthropic, pdfplumber, python-dateutil, pytest, etc.
