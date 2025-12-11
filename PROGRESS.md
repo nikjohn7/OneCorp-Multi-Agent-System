@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-11T22:45:00Z
-**Current Phase:** 2 (Extractor Agent)
-**Current Task:** 2.4
+**Last Updated:** 2025-12-11T23:30:00Z
+**Current Phase:** 3 (Router Agent)
+**Current Task:** 3.1
 
 ---
 
@@ -23,7 +23,7 @@
 - [x] 2.1 – Design `extractor_prompt.md`
 - [x] 2.2 – Implement `extract_eoi()` in `extractor.py`
 - [x] 2.3 – Implement `extract_contract()` in `extractor.py`
-- [ ] 2.4 – Extraction Tests (`tests/test_extraction.py`)
+- [x] 2.4 – Extraction Tests (`tests/test_extraction.py`)
 
 ### Phase 3 – Router Agent
 - [ ] 3.1 – Design `router_prompt.md`
@@ -72,6 +72,7 @@
 - **2.1** (2025-12-11T16:45:00Z) - Created comprehensive extractor_prompt.md with detailed instructions for DeepSeek V3.2 LLM. Prompt includes complete JSON schemas for both EOI and CONTRACT documents, field detection patterns using label matching (not hardcoded values), finance term semantic parsing (handles negation correctly), confidence scoring guidelines (0.0-1.0), and extraction quality standards. Prompt emphasizes accuracy over guessing, supports both document types with version detection, and includes comprehensive examples for all field types (purchasers, property, pricing, finance, solicitor, deposits, vendor, introducer). Validated schemas match ground-truth JSON structures exactly
 - **2.2** (2025-12-11T22:30:00Z) - Implemented extract_eoi() function in src/agents/extractor.py using DeepSeek V3.2 via DeepInfra API. Function extracts text from PDF using pdfplumber, sends to LLM with extractor_prompt.md system prompt, and returns structured JSON matching ground-truth schema. Added openai>=1.0.0 package to requirements.txt for OpenAI-compatible API client. Implemented call_extraction_llm() helper with proper error handling, JSON parsing (handles markdown code blocks), and low temperature (0.1) for deterministic extraction. Also implemented extract_contract() function (for Task 2.3) with same architecture. Tested with demo EOI PDF - achieved 100% field match (30/30 fields) with ground truth after refining prompt for deposit calculation and address formatting edge cases. All critical fields extracted with confidence ≥0.8. Created test_extractor_manual.py for validation
 - **2.3** (2025-12-11T22:45:00Z) - Validated extract_contract() function against both V1 and V2 contract PDFs. Function successfully extracts all fields including version detection (V1/V2 from filename and document header), vendor information (name, ACN, address), and all purchaser/property/pricing/finance/solicitor/deposit fields. Refined extractor_prompt.md to normalize finance terms field - extracts concise key phrase ("IS SUBJECT TO FINANCE" or "NOT subject to finance") by removing explanatory clauses, trailing punctuation, and annotations. Tested with both contracts: V1 achieved 100% match (27/27 fields) correctly extracting incorrect values (lot 59 instead of 95, jane.smith@outlook.com instead of janesmith@gmail.com, IS SUBJECT TO FINANCE instead of NOT), V2 achieved 100% match (27/27 fields) with all correct values. Both contracts extracted with average confidence 1.0. Created test_contract_extraction.py for validation
+- **2.4** (2025-12-11T23:30:00Z) - Created comprehensive tests/test_extraction.py with 22 tests validating all extraction functionality. Tests organized into 3 classes: TestEOIExtraction (10 tests), TestContractExtraction (10 tests), TestExtractionErrorHandling (2 tests). Tests verify: all required fields extracted, document types and versions detected, field values match ground truth exactly (using recursive nested comparison), critical fields present with high confidence (≥0.8), finance terms semantic parsing correct (handles negation), numeric fields are numbers (not strings), boolean fields are booleans, V1 extracts incorrect values accurately, V2 extracts correct values, vendor field present in contracts, error handling for missing/invalid PDFs. Set up DEEPINFRA_API_KEY in .env file and updated extractor.py to load it using python-dotenv. All 22 tests pass successfully (100% pass rate) after 25 minutes of LLM API calls. Tests validate pattern-based extraction logic works correctly without hardcoded demo values
 
 ### Current Task Notes
 
@@ -86,11 +87,11 @@ _None._
 ## Quick Reference
 
 **Total Tasks:** 31
-**Completed:** 10
-**Remaining:** 21
-**Progress:** 32%
+**Completed:** 11
+**Remaining:** 20
+**Progress:** 35%
 
-**Next Task:** 2.4 – Extraction Tests (`tests/test_extraction.py`)
+**Next Task:** 3.1 – Design `router_prompt.md`
 
 ---
 

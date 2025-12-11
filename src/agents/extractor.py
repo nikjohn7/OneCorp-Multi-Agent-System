@@ -10,10 +10,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Union, Dict, Any, Optional
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from src.utils.pdf_parser import read_pdf_text
 
+
+# Load environment variables from .env file
+load_dotenv()
 
 # API Configuration
 DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")
