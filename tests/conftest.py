@@ -119,7 +119,7 @@ def contract_v1_pdf_path() -> Path:
     Returns:
         Path to the demo V1 contract PDF.
     """
-    return PROJECT_ROOT / "data" / "contracts" / "CONTRACT_OF_SALE_OF_REAL_ESTATE_V1.pdf"
+    return PROJECT_ROOT / "data" / "contracts" / "CONTRACT_V1.pdf"
 
 
 @pytest.fixture
@@ -130,7 +130,7 @@ def contract_v2_pdf_path() -> Path:
     Returns:
         Path to the demo V2 contract PDF.
     """
-    return PROJECT_ROOT / "data" / "contracts" / "CONTRACT_OF_SALE_OF_REAL_ESTATE_V2.pdf"
+    return PROJECT_ROOT / "data" / "contracts" / "CONTRACT_V2.pdf"
 
 
 @pytest.fixture
