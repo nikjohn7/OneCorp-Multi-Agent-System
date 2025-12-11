@@ -1,0 +1,53 @@
+{
+  "document_type": "CONTRACT",
+  "version": "V1",
+  "source_file": "CONTRACT_OF_SALE_OF_REAL_ESTATE_V1.pdf",
+  "extracted_at": null,
+  "fields": {
+    "purchaser_1": {
+      "first_name": "John",
+      "last_name": "Smith",
+      "email": "johnsmith@gmail.com",
+      "mobile": "+61 411 222 333"
+    },
+    "purchaser_2": {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "jane.smith@outlook.com",
+      "mobile": "+61 422 333 444"
+    },
+    "property": {
+      "lot_number": "59",
+      "address": "Fake Rise, VIC 3336",
+      "estate": "Fake Rise Estate"
+    },
+    "pricing": {
+      "total_price": 565000,
+      "land_price": 250000,
+      "build_price": 315000,
+      "tenancy_split": "90/10"
+    },
+    "finance": {
+      "terms": "IS SUBJECT TO FINANCE",
+      "is_subject_to_finance": true
+    },
+    "solicitor": {
+      "firm_name": "Big Legal Firm",
+      "contact_name": "Michael Ken",
+      "phone": "0488 999 777",
+      "email": "michael@biglegalfirm.com.au"
+    },
+    "deposits": {
+      "eoi_deposit": 1000,
+      "build_deposit": 16000,
+      "balance_deposit": 17000,
+      "total_deposit": 34000
+    },
+    "vendor": {
+      "name": "BuildWell Developments Pty Ltd",
+      "acn": "009 888 777",
+      "address": "Level 12, 400 Collins Street, Melbourne VIC 3000"
+    }
+  },
+  "notes": "This contract contains 5 errors that should be detected when compared against EOI"
+}

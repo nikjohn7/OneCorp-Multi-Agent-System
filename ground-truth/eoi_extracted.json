@@ -1,0 +1,67 @@
+{
+  "document_type": "EOI",
+  "source_file": "EOI_John_JaneSmith.pdf",
+  "extracted_at": null,
+  "fields": {
+    "purchaser_1": {
+      "first_name": "John",
+      "last_name": "Smith",
+      "email": "johnsmith@gmail.com",
+      "mobile": "+61 411 222 333"
+    },
+    "purchaser_2": {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "janesmith@gmail.com",
+      "mobile": "+61 422 333 444"
+    },
+    "residential_address": "32 Wallaby Way, Sydney 2000 NSW",
+    "property": {
+      "lot_number": "95",
+      "address": "Fake Rise VIC 3336",
+      "project_name": null
+    },
+    "pricing": {
+      "total_price": 550000,
+      "land_price": 250000,
+      "build_price": 300000,
+      "tenancy_split": "90/10"
+    },
+    "finance": {
+      "terms": "Not Subject to Finance",
+      "is_subject_to_finance": false,
+      "provider_name": "Great Finance",
+      "provider_contact": "Denique Frances",
+      "provider_email": "denique@greatfinance.com.au"
+    },
+    "solicitor": {
+      "firm_name": "Big Legal Firm",
+      "contact_name": "Michael Ken",
+      "phone": "0488 999 777",
+      "email": "michael@biglegalfirm.com.au"
+    },
+    "deposits": {
+      "eoi_deposit": 1000,
+      "build_deposit": 16000,
+      "balance_deposit": 17000,
+      "total_deposit": 34000
+    },
+    "introducer": {
+      "agency": "OneCorp (Aust) Pty Ltd",
+      "contact": "Adrian Pizzo",
+      "email": "hello@onecorpaustralia.com.au"
+    }
+  },
+  "critical_fields": [
+    "purchaser_1.first_name",
+    "purchaser_1.last_name",
+    "purchaser_1.email",
+    "purchaser_2.first_name",
+    "purchaser_2.last_name",
+    "purchaser_2.email",
+    "property.lot_number",
+    "property.address",
+    "pricing.total_price",
+    "finance.is_subject_to_finance"
+  ]
+}

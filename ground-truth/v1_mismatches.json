@@ -1,0 +1,59 @@
+{
+  "contract_version": "V1",
+  "source_file": "CONTRACT_OF_SALE_OF_REAL_ESTATE_V1.pdf",
+  "compared_against": "EOI_John_JaneSmith.pdf",
+  "is_valid": false,
+  "risk_score": "HIGH",
+  "mismatch_count": 5,
+  "mismatches": [
+    {
+      "field": "property.lot_number",
+      "field_display": "Lot Number",
+      "eoi_value": "95",
+      "contract_value": "59",
+      "severity": "HIGH",
+      "rationale": "Lot number mismatch affects title registration - legally critical"
+    },
+    {
+      "field": "pricing.total_price",
+      "field_display": "Total Price",
+      "eoi_value": 550000,
+      "eoi_value_formatted": "$550,000",
+      "contract_value": 565000,
+      "contract_value_formatted": "$565,000",
+      "severity": "HIGH",
+      "rationale": "Price difference of $15,000 - financially material"
+    },
+    {
+      "field": "pricing.build_price",
+      "field_display": "Build Price",
+      "eoi_value": 300000,
+      "eoi_value_formatted": "$300,000",
+      "contract_value": 315000,
+      "contract_value_formatted": "$315,000",
+      "severity": "MEDIUM",
+      "rationale": "Build price difference of $15,000 - explains total price mismatch"
+    },
+    {
+      "field": "purchaser_2.email",
+      "field_display": "Jane Smith Email",
+      "eoi_value": "janesmith@gmail.com",
+      "contract_value": "jane.smith@outlook.com",
+      "severity": "LOW",
+      "rationale": "Email address typo - may affect DocuSign delivery"
+    },
+    {
+      "field": "finance.is_subject_to_finance",
+      "field_display": "Finance Terms",
+      "eoi_value": false,
+      "eoi_value_formatted": "Not Subject to Finance",
+      "contract_value": true,
+      "contract_value_formatted": "IS SUBJECT TO FINANCE",
+      "severity": "HIGH",
+      "rationale": "Boolean inversion of finance terms creates legal liability - purchaser may have different obligations"
+    }
+  ],
+  "amendment_recommendation": "Request vendor to correct: (1) Lot number from 59 to 95, (2) Total price from $565,000 to $550,000, (3) Build price from $315,000 to $300,000, (4) Jane Smith's email from jane.smith@outlook.com to janesmith@gmail.com, (5) Finance terms from 'Subject to Finance' to 'Not Subject to Finance' as per EOI.",
+  "next_action": "SEND_DISCREPANCY_ALERT",
+  "should_send_to_solicitor": false
+}

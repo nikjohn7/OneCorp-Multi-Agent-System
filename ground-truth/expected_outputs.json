@@ -1,0 +1,175 @@
+{
+  "deal_id": "LOT95_FAKE_RISE_VIC_3336",
+  "workflow_stages": [
+    {
+      "stage": 1,
+      "state": "EOI_RECEIVED",
+      "trigger_email": "email_1",
+      "expected_actions": [
+        "Create deal record",
+        "Extract canonical fields from EOI",
+        "Store as source of truth"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 2,
+      "state": "CONTRACT_V1_RECEIVED",
+      "trigger_email": "email_2",
+      "expected_actions": [
+        "Extract fields from contract V1",
+        "Compare against EOI",
+        "Detect 5 mismatches",
+        "Calculate risk score = HIGH"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 3,
+      "state": "CONTRACT_V1_HAS_DISCREPANCIES",
+      "trigger": "comparison_result.is_valid = false",
+      "expected_actions": [
+        "Generate discrepancy alert email",
+        "Mark V1 as having discrepancies"
+      ],
+      "outputs": [
+        {
+          "type": "DISCREPANCY_ALERT",
+          "from": "system@onecorpaustralia.com.au",
+          "to": ["support@onecorpaustralia.com.au"],
+          "subject_contains": "Contract Discrepancy Alert",
+          "body_must_contain": [
+            "Lot Number",
+            "95",
+            "59",
+            "Total Price",
+            "$550,000",
+            "$565,000",
+            "Finance Terms",
+            "HIGH"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "state": "AMENDMENT_REQUESTED",
+      "trigger": "discrepancy_alert_sent",
+      "expected_actions": [
+        "Transition to awaiting amended contract"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 5,
+      "state": "CONTRACT_V2_RECEIVED",
+      "trigger_email": "email_2b",
+      "expected_actions": [
+        "Extract fields from contract V2",
+        "Compare against EOI",
+        "Detect 0 mismatches",
+        "Mark V1 as SUPERSEDED",
+        "Mark V2 as VALIDATED_OK"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 6,
+      "state": "SENT_TO_SOLICITOR",
+      "trigger": "comparison_result.is_valid = true AND is_highest_version",
+      "expected_actions": [
+        "Generate solicitor email",
+        "Attach V2 contract"
+      ],
+      "outputs": [
+        {
+          "type": "CONTRACT_TO_SOLICITOR",
+          "from": "support@onecorpaustralia.com.au",
+          "to": ["michael@biglegalfirm.com.au"],
+          "subject_contains": "Contract for Review",
+          "subject_contains_also": ["Smith", "Lot 95"],
+          "attachments": ["CONTRACT_OF_SALE_OF_REAL_ESTATE_V2.pdf"]
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "state": "SOLICITOR_APPROVED",
+      "trigger_email": "email_4",
+      "expected_actions": [
+        "Detect approval in email body",
+        "Extract appointment phrase: 'Thursday at 11:30am'",
+        "Resolve to datetime: 2025-01-16T11:30:00+11:00",
+        "Schedule SLA timer: 2025-01-18T09:00:00+11:00"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 8,
+      "state": "DOCUSIGN_RELEASE_REQUESTED",
+      "trigger": "solicitor_approved AND appointment_datetime_set",
+      "expected_actions": [
+        "Generate vendor release email"
+      ],
+      "outputs": [
+        {
+          "type": "VENDOR_DOCUSIGN_RELEASE",
+          "from": "support@onecorpaustralia.com.au",
+          "to": ["contracts@buildwelldevelopments.com.au"],
+          "subject_contains": "Contract Request",
+          "body_must_contain": [
+            "solicitor has approved",
+            "DocuSign"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 9,
+      "state": "DOCUSIGN_RELEASED",
+      "trigger_email": "email_6",
+      "expected_actions": [
+        "Detect DocuSign envelope sent to purchasers"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 10,
+      "state": "BUYER_SIGNED",
+      "trigger_email": "email_7",
+      "expected_actions": [
+        "Detect buyer signature complete",
+        "Cancel SLA timer (signature received before deadline)"
+      ],
+      "outputs": []
+    },
+    {
+      "stage": 11,
+      "state": "EXECUTED",
+      "trigger_email": "email_8",
+      "expected_actions": [
+        "Detect full execution",
+        "Mark deal as complete"
+      ],
+      "outputs": []
+    }
+  ],
+  "sla_test_scenario": {
+    "description": "Test SLA alert by removing email_7 (buyer signed)",
+    "setup": "Process emails 1-6, then simulate time passing to 2025-01-18T09:00:00+11:00",
+    "expected_output": {
+      "type": "SLA_OVERDUE_ALERT",
+      "from": "system@onecorpaustralia.com.au",
+      "to": ["support@onecorpaustralia.com.au"],
+      "subject_contains": "SLA Overdue",
+      "body_must_contain": [
+        "Lot 95 Fake Rise",
+        "John Smith",
+        "Jane Smith",
+        "Thursday, 16 January 2025",
+        "11:30",
+        "Recommended Action"
+      ]
+    }
+  }
+}

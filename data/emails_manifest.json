@@ -1,0 +1,116 @@
+{
+  "description": "Email manifest for OneCorp MAS demo - Lot 95 Fake Rise VIC 3336",
+  "deal_id": "LOT95_FAKE_RISE_VIC_3336",
+  "emails": [
+    {
+      "email_id": "email_1",
+      "file": "incoming/01_eoi_signed.txt",
+      "type": "INPUT",
+      "event_type": "EOI_SIGNED",
+      "timestamp": "2025-01-10T15:00:00+11:00",
+      "from": "sales@onecorpaustralia.com.au",
+      "to": ["support@onecorpaustralia.com.au"],
+      "attachments": ["EOI_John_JaneSmith.pdf"]
+    },
+    {
+      "email_id": "email_2",
+      "file": "incoming/02_contract_v1_received.txt",
+      "type": "INPUT",
+      "event_type": "CONTRACT_FROM_VENDOR",
+      "timestamp": "2025-01-12T09:00:00+11:00",
+      "from": "contracts@buildwelldevelopments.com.au",
+      "to": ["support@onecorpaustralia.com.au"],
+      "attachments": ["CONTRACT_OF_SALE_OF_REAL_ESTATE_V1.pdf"],
+      "contract_version": "V1"
+    },
+    {
+      "email_id": "email_2b",
+      "file": "incoming/02b_contract_v2_received.txt",
+      "type": "INPUT",
+      "event_type": "CONTRACT_FROM_VENDOR",
+      "timestamp": "2025-01-13T09:00:00+11:00",
+      "from": "contracts@buildwelldevelopments.com.au",
+      "to": ["support@onecorpaustralia.com.au"],
+      "attachments": ["CONTRACT_OF_SALE_OF_REAL_ESTATE_V2.pdf"],
+      "contract_version": "V2",
+      "in_reply_to": "email_2",
+      "notes": "Amended contract after discrepancy alert"
+    },
+    {
+      "email_id": "email_3",
+      "file": "templates/03_contract_to_solicitor.txt",
+      "type": "OUTPUT_TEMPLATE",
+      "event_type": "CONTRACT_TO_SOLICITOR",
+      "timestamp": "2025-01-13T14:01:00+11:00",
+      "from": "support@onecorpaustralia.com.au",
+      "to": ["michael@biglegalfirm.com.au"],
+      "attachments": ["CONTRACT_OF_SALE_OF_REAL_ESTATE_V2.pdf"],
+      "notes": "Reference template for Agent D - Contract to Solicitor email"
+    },
+    {
+      "email_id": "email_4",
+      "file": "incoming/04_solicitor_approved.txt",
+      "type": "INPUT",
+      "event_type": "SOLICITOR_APPROVED_WITH_APPOINTMENT",
+      "timestamp": "2025-01-14T09:12:00+11:00",
+      "from": "michael@biglegalfirm.com.au",
+      "to": ["support@onecorpaustralia.com.au"],
+      "attachments": [],
+      "in_reply_to": "email_3",
+      "extracted_data": {
+        "appointment_phrase": "Thursday at 11:30am",
+        "appointment_datetime": "2025-01-16T11:30:00+11:00"
+      }
+    },
+    {
+      "email_id": "email_5",
+      "file": "templates/05_vendor_release_request.txt",
+      "type": "OUTPUT_TEMPLATE",
+      "event_type": "DOCUSIGN_RELEASE_REQUESTED",
+      "timestamp": "2025-01-14T09:15:00+11:00",
+      "from": "support@onecorpaustralia.com.au",
+      "to": ["contracts@buildwelldevelopments.com.au"],
+      "attachments": [],
+      "notes": "Reference template for Agent D - Vendor DocuSign Release email"
+    },
+    {
+      "email_id": "email_6",
+      "file": "incoming/06_docusign_please_sign.txt",
+      "type": "INPUT",
+      "event_type": "DOCUSIGN_RELEASED",
+      "timestamp": "2025-01-14T10:00:00+11:00",
+      "from": "dse@docusign.net",
+      "to": ["johnsmith@gmail.com", "janesmith@gmail.com"],
+      "cc": ["support@onecorpaustralia.com.au"],
+      "attachments": []
+    },
+    {
+      "email_id": "email_7",
+      "file": "incoming/07_buyer_signed.txt",
+      "type": "INPUT",
+      "event_type": "DOCUSIGN_BUYER_SIGNED",
+      "timestamp": "2025-01-15T14:30:00+11:00",
+      "from": "dse@docusign.net",
+      "to": ["support@onecorpaustralia.com.au"],
+      "attachments": []
+    },
+    {
+      "email_id": "email_8",
+      "file": "incoming/08_contract_executed.txt",
+      "type": "INPUT",
+      "event_type": "DOCUSIGN_EXECUTED",
+      "timestamp": "2025-01-15T16:00:00+11:00",
+      "from": "dse@docusign.net",
+      "to": ["support@onecorpaustralia.com.au"],
+      "attachments": []
+    }
+  ],
+  "sla_rules": {
+    "buyer_signature_deadline": {
+      "trigger": "appointment_datetime",
+      "offset_days": 2,
+      "check_time": "09:00:00",
+      "condition": "no DOCUSIGN_BUYER_SIGNED event exists"
+    }
+  }
+}
