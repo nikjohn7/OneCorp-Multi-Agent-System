@@ -208,15 +208,15 @@ Look for section headers: "PRICING", "Price", "1.4 Price", "TOTAL PRICE"
 
 | Field | Label Patterns | Normalization |
 |-------|----------------|---------------|
-| `total_price` | "TOTAL PRICE", "Purchase Price", "Total Purchase Price" | Remove "$", "AU$", "AU $", commas, ".00" ’ integer |
-| `land_price` | "LAND PRICE", "Land Component", "Land Price" | Remove currency symbols ’ integer |
-| `build_price` | "BUILD PRICE", "Build Component", "Construction" | Remove currency symbols ’ integer |
+| `total_price` | "TOTAL PRICE", "Purchase Price", "Total Purchase Price" | Remove "$", "AU$", "AU $", commas, ".00" â†’ integer |
+| `land_price` | "LAND PRICE", "Land Component", "Land Price" | Remove currency symbols â†’ integer |
+| `build_price` | "BUILD PRICE", "Build Component", "Construction" | Remove currency symbols â†’ integer |
 | `tenancy_split` | "Tenancy Split", "Split" | Preserve as string (e.g., "90/10") |
 
 **Normalization Examples**:
-- "AU$ 550,000.00" ’ `550000`
-- "$250,000" ’ `250000`
-- "$16, 000" ’ `16000` (note space in original)
+- "AU$ 550,000.00" â†’ `550000`
+- "$250,000" â†’ `250000`
+- "$16, 000" â†’ `16000` (note space in original)
 
 ### Finance Terms (CRITICAL - Semantic Parsing Required)
 
@@ -251,9 +251,9 @@ AMBIGUOUS (return null and add extraction_note):
 ```
 
 **Examples**:
-- `"terms": "Not Subject to Finance"` ’ `"is_subject_to_finance": false`
-- `"terms": "IS SUBJECT TO FINANCE"` ’ `"is_subject_to_finance": true`
-- `"terms": "This Contract IS SUBJECT TO FINANCE."` ’ `"is_subject_to_finance": true`
+- `"terms": "Not Subject to Finance"` â†’ `"is_subject_to_finance": false`
+- `"terms": "IS SUBJECT TO FINANCE"` â†’ `"is_subject_to_finance": true`
+- `"terms": "This Contract IS SUBJECT TO FINANCE."` â†’ `"is_subject_to_finance": true`
 
 ### Solicitor Fields
 
@@ -272,9 +272,9 @@ Look for section headers: "DEPOSITS", "1.6 Deposit", "EXPRESSION OF INTEREST PAY
 
 | Field | Label Patterns | Normalization |
 |-------|----------------|---------------|
-| `eoi_deposit` | "EOI Deposit", "EOI LAND", "EOI BUILD" | Sum if split, remove currency ’ integer |
-| `build_deposit` | "Build Deposit Amount", "Build Deposit" | Remove currency ’ integer |
-| `balance_deposit` | "Balance Deposit Amount", "Balance Deposit" | Remove currency ’ integer |
+| `eoi_deposit` | "EOI Deposit", "EOI LAND", "EOI BUILD" | Sum if split, remove currency â†’ integer |
+| `build_deposit` | "Build Deposit Amount", "Build Deposit" | Remove currency â†’ integer |
+| `balance_deposit` | "Balance Deposit Amount", "Balance Deposit" | Remove currency â†’ integer |
 | `total_deposit` | "Total Deposit Required", "Total Deposit" | Calculate sum if not stated |
 
 ### Vendor Fields (CONTRACT only)
@@ -305,8 +305,8 @@ Assign confidence scores (0.0 to 1.0) based on:
 
 | Confidence | Criteria | Example |
 |------------|----------|---------|
-| **0.9 - 1.0** | Clear label match, unambiguous value, standard format | "TOTAL PRICE AU$ 550,000.00" ’ clean extraction |
-| **0.8 - 0.89** | Good label match, minor formatting variation | "Total Price: $550,000" ’ slightly informal |
+| **0.9 - 1.0** | Clear label match, unambiguous value, standard format | "TOTAL PRICE AU$ 550,000.00" â†’ clean extraction |
+| **0.8 - 0.89** | Good label match, minor formatting variation | "Total Price: $550,000" â†’ slightly informal |
 | **0.5 - 0.79** | Weak label match OR value ambiguity | Multiple prices found, unclear which is total |
 | **< 0.5** | No clear label OR multiple conflicting values | Finance term doesn't match known patterns |
 
@@ -337,17 +337,26 @@ If a critical field has confidence < 0.8, add a note to `extraction_notes`.
 - Phone numbers: Preserve original formatting ("+61 411 222 333" or "0411 222 333")
 - Emails: Preserve case in local part, lowercase domain
 - Currency: Always return as integer (dollars only, no cents)
+- Addresses: When extracting residential address from multiple lines, preserve commas between address components (e.g., "32 Wallaby Way, Sydney 2000 NSW" not "32 Wallaby Way Sydney 2000 NSW")
 
 ### Ambiguous Finance Terms
 - If phrase contains BOTH "subject to finance" AND "not", parse carefully:
-  - "NOT subject to finance" ’ `false`
-  - "This is subject to finance" ’ `true`
+  - "NOT subject to finance" â†’ `false`
+  - "This is subject to finance" â†’ `true`
 - If uncertain, set `is_subject_to_finance: null` and note the full phrase
 
 ### Version Detection
 - Check filename first (most reliable)
 - Then check document header
 - If multiple version indicators conflict, note in `extraction_notes`
+
+### Deposit Fields (EOI)
+- **EOI Deposit**: May appear on lines labeled "EOI LAND", "EOI BUILD", or as a single value under "EOI Deposit"
+  - If split across "EOI LAND" and "EOI BUILD", sum them for `eoi_deposit`
+  - If only one line has a value (e.g., "$1000" on "EOI BUILD" line), use that value
+  - Example: "EOI BUILD $1000" â†’ `eoi_deposit: 1000`
+- **Total Deposit**: If not explicitly stated, calculate as: `eoi_deposit + build_deposit + balance_deposit`
+  - Example: 1000 + 16000 + 17000 = 34000
 
 ---
 
@@ -378,7 +387,7 @@ L Return confidence 1.0 unless absolutely certain
 3. **For CONTRACT**: Detect version (V1, V2, etc.)
 4. **Scan for section headers**: Identify PURCHASER, PROPERTY, PRICING, FINANCE, etc.
 5. **Extract each field**: Using patterns above
-6. **Normalize values**: Currency ’ integers, finance terms ’ boolean
+6. **Normalize values**: Currency â†’ integers, finance terms â†’ boolean
 7. **Assign confidence**: Based on label clarity and value certainty
 8. **Validate output**: Check JSON structure, required fields present
 9. **Return JSON**: Complete structured output with notes
