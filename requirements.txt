@@ -12,6 +12,7 @@ PyMuPDF>=1.23.0,<2.0.0        # Alternative PDF parser (fitz)
 # LLM and AI
 # ============================================================================
 anthropic>=0.18.0,<1.0.0      # Claude API client
+openai>=1.0.0,<2.0.0          # OpenAI-compatible API client (for DeepInfra)
 
 # ============================================================================
 # Date and Time Processing
