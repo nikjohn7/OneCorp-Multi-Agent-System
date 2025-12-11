@@ -206,7 +206,14 @@ Read the relevant guide in `agent_docs/` before implementing:
 
 ## Commands
 
+**IMPORTANT:** Always activate the virtual environment before running any commands:
+
 ```bash
+# Activate virtual environment (if not already activated)
+source .venv/bin/activate  # On Linux/macOS
+# or
+.venv\Scripts\activate     # On Windows
+
 # Run the full demo
 python -m src.main
 
