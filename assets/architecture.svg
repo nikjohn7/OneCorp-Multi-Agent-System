@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" width="1200" height="1400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1450" width="1200" height="1450">
+
+  <!-- Arrow markers - defined once at the start -->
+  <defs>
+    <marker id="arrowblue" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrowred" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrowblack" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#1f2937"/>
+    </marker>
+    <marker id="arrowgreen" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
   <!-- Title -->
   <text x="600" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#1a1a1a">
     OneCorp Multi-Agent System Architecture
@@ -13,16 +30,6 @@
     <line x1="200" y1="75" x2="240" y2="75" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowred)"/>
     <text x="250" y="80" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">Control Flow</text>
   </g>
-
-  <!-- Arrow markers -->
-  <defs>
-    <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
-    </marker>
-    <marker id="arrowred" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#dc2626"/>
-    </marker>
-  </defs>
 
   <!-- External System: Shared Inbox -->
   <g id="shared-inbox">
@@ -55,7 +62,7 @@
   </g>
 
   <!-- Data flow: Router -> Extractor -->
-  <path d="M 450,280 L 380,280 L 380,465 L 380,465" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
+  <path d="M 450,280 L 380,280 L 380,465" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
   <text x="395" y="350" font-family="Arial, sans-serif" font-size="10" fill="#2563eb">PDF attachments</text>
 
   <!-- Auditor Agent -->
@@ -122,7 +129,7 @@
   </g>
 
   <!-- Bidirectional data flow: Orchestrator <-> Deal Store -->
-  <path d="M 400,700 L 350,700 L 350,870 L 350,870" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
+  <path d="M 400,700 L 350,700 L 350,870" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
   <path d="M 355,865 L 355,705 L 400,705" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
   <text x="360" y="780" font-family="Arial, sans-serif" font-size="10" fill="#2563eb">Read/Write</text>
   <text x="360" y="795" font-family="Arial, sans-serif" font-size="10" fill="#2563eb">deal state</text>
@@ -154,83 +161,86 @@
 
   <!-- Workflow States Box -->
   <g id="workflow-states">
-    <rect x="50" y="1180" width="1100" height="170" fill="#fef9e7" stroke="#f59e0b" stroke-width="2" rx="5"/>
+    <rect x="50" y="1180" width="1100" height="200" fill="#fef9e7" stroke="#f59e0b" stroke-width="2" rx="5"/>
     <text x="600" y="1210" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#92400e">KEY WORKFLOW STATES</text>
 
     <!-- State flow diagram -->
     <g id="state-flow">
-      <circle cx="100" cy="1250" r="25" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="100" y="1255" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#1e3a8a">EOI</text>
+      <!-- EOI -->
+      <circle cx="100" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="100" y="1265" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#1e3a8a">EOI</text>
 
-      <path d="M 125,1250 L 165,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <line x1="122" y1="1260" x2="158" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
-      <circle cx="190" cy="1250" r="25" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
-      <text x="190" y="1255" font-family="Arial, sans-serif" font-size="9" font-weight="bold" text-anchor="middle" fill="#92400e">V1</text>
+      <!-- V1 -->
+      <circle cx="180" cy="1260" r="22" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+      <text x="180" y="1265" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#92400e">V1</text>
 
-      <path d="M 190,1275 L 190,1295" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowred)"/>
-      <text x="195" y="1290" font-family="Arial, sans-serif" font-size="9" fill="#dc2626">failed</text>
+      <!-- V1 failed path -->
+      <line x1="180" y1="1282" x2="180" y2="1308" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowred)"/>
+      <text x="195" y="1295" font-family="Arial, sans-serif" font-size="9" fill="#dc2626">failed</text>
 
-      <circle cx="190" cy="1310" r="20" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-      <text x="190" y="1315" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#991b1b">Alert</text>
+      <!-- Alert -->
+      <circle cx="180" cy="1325" r="18" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="180" y="1330" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#991b1b">Alert</text>
 
-      <path d="M 210,1310 L 280,1310 L 280,1250 L 255,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <!-- Alert back to V2 -->
+      <path d="M 198,1325 L 270,1325 L 270,1260 L 242,1260" stroke="#1f2937" stroke-width="2" fill="none" marker-end="url(#arrowblack)"/>
 
-      <circle cx="330" cy="1250" r="25" fill="#d1fae5" stroke="#16a34a" stroke-width="2"/>
-      <text x="330" y="1255" font-family="Arial, sans-serif" font-size="9" font-weight="bold" text-anchor="middle" fill="#14532d">V2</text>
+      <!-- V2 -->
+      <circle cx="300" cy="1260" r="22" fill="#d1fae5" stroke="#16a34a" stroke-width="2"/>
+      <text x="300" y="1265" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#14532d">V2</text>
 
-      <path d="M 330,1225 L 330,1210" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowgreen)"/>
-      <text x="335" y="1215" font-family="Arial, sans-serif" font-size="9" fill="#16a34a">valid</text>
+      <!-- V2 valid path up -->
+      <line x1="300" y1="1238" x2="300" y2="1220" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowgreen)"/>
+      <text x="310" y="1227" font-family="Arial, sans-serif" font-size="9" fill="#16a34a">valid</text>
 
-      <circle cx="420" cy="1250" r="25" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="420" y="1252" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Sent to</text>
-      <text x="420" y="1262" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
+      <line x1="322" y1="1260" x2="358" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
-      <path d="M 355,1250 L 395,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <!-- Sent to Solicitor -->
+      <circle cx="390" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="390" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Sent to</text>
+      <text x="390" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
 
-      <path d="M 445,1250 L 485,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <line x1="412" y1="1260" x2="448" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
-      <circle cx="510" cy="1250" r="25" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="510" y="1252" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
-      <text x="510" y="1262" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Approved</text>
+      <!-- Solicitor Approved -->
+      <circle cx="480" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="480" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
+      <text x="480" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Approved</text>
 
-      <path d="M 535,1250 L 575,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <line x1="502" y1="1260" x2="538" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
-      <circle cx="600" cy="1250" r="25" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
-      <text x="600" y="1252" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#92400e">DocuSign</text>
-      <text x="600" y="1262" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#92400e">Released</text>
+      <!-- DocuSign Released -->
+      <circle cx="570" cy="1260" r="22" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+      <text x="570" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#92400e">DocuSign</text>
+      <text x="570" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#92400e">Released</text>
 
-      <path d="M 625,1250 L 665,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <line x1="592" y1="1260" x2="628" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
-      <circle cx="690" cy="1250" r="25" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="690" y="1252" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Buyer</text>
-      <text x="690" y="1262" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Signed</text>
+      <!-- Buyer Signed -->
+      <circle cx="660" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="660" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Buyer</text>
+      <text x="660" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Signed</text>
 
-      <path d="M 715,1250 L 755,1250" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+      <line x1="682" y1="1260" x2="718" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
-      <circle cx="780" cy="1250" r="25" fill="#d1fae5" stroke="#16a34a" stroke-width="2"/>
-      <text x="780" y="1255" font-family="Arial, sans-serif" font-size="9" font-weight="bold" text-anchor="middle" fill="#14532d">EXECUTED</text>
+      <!-- EXECUTED -->
+      <circle cx="750" cy="1260" r="22" fill="#d1fae5" stroke="#16a34a" stroke-width="2"/>
+      <text x="750" y="1265" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="#14532d">EXECUTED</text>
 
-      <!-- SLA Alert path -->
-      <path d="M 600,1275 L 600,1310 L 850,1310" stroke="#dc2626" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrowred)"/>
-      <text x="660" y="1305" font-family="Arial, sans-serif" font-size="9" fill="#dc2626">SLA overdue if no buyer signature</text>
+      <!-- SLA Alert path from DocuSign Released -->
+      <path d="M 570,1282 L 570,1340 L 840,1340" stroke="#dc2626" stroke-width="2" stroke-dasharray="3,3" fill="none" marker-end="url(#arrowred)"/>
+      <text x="650" y="1335" font-family="Arial, sans-serif" font-size="9" fill="#dc2626">SLA overdue if no buyer signature</text>
 
-      <circle cx="870" cy="1310" r="20" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-      <text x="870" y="1315" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#991b1b">SLA Alert</text>
+      <!-- SLA Alert -->
+      <circle cx="860" cy="1340" r="18" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="860" y="1345" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#991b1b">SLA Alert</text>
     </g>
   </g>
 
-  <!-- Additional arrow markers -->
-  <defs>
-    <marker id="arrowblack" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#1f2937"/>
-    </marker>
-    <marker id="arrowgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/>
-    </marker>
-  </defs>
-
   <!-- Footer note -->
-  <text x="600" y="1380" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#6b7280" font-style="italic">
+  <text x="600" y="1420" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#6b7280" font-style="italic">
     Pattern-based, generalizable architecture - works for any property deal
   </text>
 </svg>
