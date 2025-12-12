@@ -122,9 +122,9 @@ You must classify emails into one of these **6 event types**:
 
 **Version Detection**:
 - Look for "V1", "V2", "VERSION 1", "VERSION 2" in attachment filename
-- If filename contains "V1" ’ `"contract_version": "V1"`
-- If filename contains "V2" ’ `"contract_version": "V2"`
-- If not specified ’ `"contract_version": null`
+- If filename contains "V1" ' `"contract_version": "V1"`
+- If filename contains "V2" ' `"contract_version": "V2"`
+- If not specified ' `"contract_version": null`
 
 ---
 
@@ -230,24 +230,24 @@ Use this systematic approach:
 
 ```
 1. Check Sender Domain
-     onecorpaustralia.com.au ’ Likely EOI_SIGNED
-     *developments.com.au, contracts@* ’ Likely CONTRACT_FROM_VENDOR
-     *legal*.com.au, *law*.com.au ’ Likely SOLICITOR_APPROVED_WITH_APPOINTMENT
-     docusign.net, docusign.com ’ Likely DOCUSIGN_* (go to step 2)
+     onecorpaustralia.com.au ' Likely EOI_SIGNED
+     *developments.com.au, contracts@* ' Likely CONTRACT_FROM_VENDOR
+     *legal*.com.au, *law*.com.au ' Likely SOLICITOR_APPROVED_WITH_APPOINTMENT
+     docusign.net, docusign.com ' Likely DOCUSIGN_* (go to step 2)
 
 2. If DocuSign sender, check Subject + Body:
-     "Please Sign" / "ready for signature" ’ DOCUSIGN_RELEASED
-     "Buyer Signed" / "purchaser signed" + "vendor signature required" ’ DOCUSIGN_BUYER_SIGNED
-     "Completed" / "All parties signed" / "Fully Executed" ’ DOCUSIGN_EXECUTED
+     "Please Sign" / "ready for signature" ' DOCUSIGN_RELEASED
+     "Buyer Signed" / "purchaser signed" + "vendor signature required" ' DOCUSIGN_BUYER_SIGNED
+     "Completed" / "All parties signed" / "Fully Executed" ' DOCUSIGN_EXECUTED
 
 3. Verify with Body Content:
    - Cross-check with body text for confirmation
    - Look for keywords specific to each event type
 
 4. Check Attachments:
-   - EOI PDF ’ Supports EOI_SIGNED
-   - Contract PDF ’ Supports CONTRACT_FROM_VENDOR
-   - No attachments + solicitor sender ’ Supports SOLICITOR_APPROVED
+   - EOI PDF ' Supports EOI_SIGNED
+   - Contract PDF ' Supports CONTRACT_FROM_VENDOR
+   - No attachments + solicitor sender ' Supports SOLICITOR_APPROVED
 
 5. Extract Metadata:
    - Lot number (e.g., "Lot 95", "Lot #59")
@@ -257,10 +257,10 @@ Use this systematic approach:
    - Contract version (ONLY for CONTRACT_FROM_VENDOR events)
 
 6. Assign Confidence:
-   - All signals agree ’ 0.9-1.0
-   - Some ambiguity but clear primary signal ’ 0.8-0.89
-   - Conflicting signals but best guess ’ 0.6-0.79
-   - Truly ambiguous ’ 0.5 or below
+   - All signals agree ' 0.9-1.0
+   - Some ambiguity but clear primary signal ' 0.8-0.89
+   - Conflicting signals but best guess ' 0.6-0.79
+   - Truly ambiguous ' 0.5 or below
 ```
 
 ---
@@ -272,8 +272,8 @@ Use this systematic approach:
 **Scenario**: Email from solicitor mentions both contract review completion AND a new contract version attached.
 
 **Resolution**:
-- Prioritize the PRIMARY action: If attachment is a new contract ’ `CONTRACT_FROM_VENDOR`
-- If just approval with no new contract ’ `SOLICITOR_APPROVED_WITH_APPOINTMENT`
+- Prioritize the PRIMARY action: If attachment is a new contract ' `CONTRACT_FROM_VENDOR`
+- If just approval with no new contract ' `SOLICITOR_APPROVED_WITH_APPOINTMENT`
 - Note the ambiguity in `metadata.notes`
 
 ### Case 2: Missing Clear Appointment Phrase
@@ -292,9 +292,9 @@ Use this systematic approach:
 
 **Resolution**:
 - Read body carefully for clues:
-  - "buyer/purchaser has signed" ’ `DOCUSIGN_BUYER_SIGNED`
-  - "all parties" / "completed" ’ `DOCUSIGN_EXECUTED`
-  - "ready for you to sign" ’ `DOCUSIGN_RELEASED`
+  - "buyer/purchaser has signed" ' `DOCUSIGN_BUYER_SIGNED`
+  - "all parties" / "completed" ' `DOCUSIGN_EXECUTED`
+  - "ready for you to sign" ' `DOCUSIGN_RELEASED`
 - If truly unclear, default to most conservative interpretation
 - Lower confidence and add note
 
@@ -314,8 +314,8 @@ Use this systematic approach:
 
 **Resolution**:
 - Check for version mentions in body text ("second version", "amended contract", "updated contract")
-- If previously V1 mentioned and this is an update ’ likely V2
-- If no clear indicator ’ `contract_version: null`
+- If previously V1 mentioned and this is an update ' likely V2
+- If no clear indicator ' `contract_version: null`
 - Add note: `"Contract version not specified in filename or body"`
 
 ### Case 6: Unconventional Sender Domain
@@ -350,9 +350,9 @@ Use this systematic approach:
 - `Lot (\d+)`
 
 **Examples**:
-- "Lot 95 Fake Rise" ’ `"95"`
-- "LOT #59" ’ `"59"`
-- "for Lot 42" ’ `"42"`
+- "Lot 95 Fake Rise" ' `"95"`
+- "LOT #59" ' `"59"`
+- "for Lot 42" ' `"42"`
 
 ### Property Address Extraction
 
@@ -362,8 +362,8 @@ Use this systematic approach:
 - Format: `{suburb/street} {STATE} {postcode}`
 
 **Examples**:
-- "Lot 95, Fake Rise VIC 3336" ’ `"Fake Rise VIC 3336"`
-- "Lot 59  Example Estate NSW 2000" ’ `"Example Estate NSW 2000"`
+- "Lot 95, Fake Rise VIC 3336" ' `"Fake Rise VIC 3336"`
+- "Lot 59  Example Estate NSW 2000" ' `"Example Estate NSW 2000"`
 
 ### Purchaser Names Extraction
 
@@ -373,9 +373,9 @@ Use this systematic approach:
 - Extract as array of full names
 
 **Examples**:
-- "clients John & Jane Smith" ’ `["John Smith", "Jane Smith"]`
-- "for John Smith and Jane Smith" ’ `["John Smith", "Jane Smith"]`
-- "purchaser Michael Johnson" ’ `["Michael Johnson"]`
+- "clients John & Jane Smith" ' `["John Smith", "Jane Smith"]`
+- "for John Smith and Jane Smith" ' `["John Smith", "Jane Smith"]`
+- "purchaser Michael Johnson" ' `["Michael Johnson"]`
 
 ### Appointment Phrase Extraction (CRITICAL)
 
@@ -385,9 +385,9 @@ Use this systematic approach:
 - `scheduled for (Monday|...) at \d{1,2}:\d{2}`
 
 **Extract the RAW PHRASE** - do not parse or convert:
-- "Thursday at 11:30am" ’ `"Thursday at 11:30am"` 
-- "signing appointment scheduled for Friday at 2pm" ’ `"Friday at 2pm"` 
-- "Thursday at 11:30" ’ `"Thursday at 11:30am"` (if context implies am/pm)  (preserve as-is)
+- "Thursday at 11:30am" ' `"Thursday at 11:30am"` 
+- "signing appointment scheduled for Friday at 2pm" ' `"Friday at 2pm"` 
+- "Thursday at 11:30" ' `"Thursday at 11:30am"` (if context implies am/pm)  (preserve as-is)
 
 **Common Mistakes to Avoid**:
 - L Converting to absolute datetime (that's done by date_resolver utility)

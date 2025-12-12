@@ -153,3 +153,14 @@ def email_templates_dir() -> Path:
         Path to the directory containing reference email templates.
     """
     return PROJECT_ROOT / "data" / "emails" / "templates"
+
+
+@pytest.fixture
+def emails_dir() -> Path:
+    """
+    Get the path to the emails directory (parent of incoming/ and templates/).
+
+    Returns:
+        Path to the emails directory.
+    """
+    return PROJECT_ROOT / "data" / "emails"

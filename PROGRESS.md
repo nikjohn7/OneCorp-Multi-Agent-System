@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-11T23:45:00Z
-**Current Phase:** 3 (Router Agent)
-**Current Task:** 3.2
+**Last Updated:** 2025-12-12T00:30:00Z
+**Current Phase:** 4 (Auditor Agent)
+**Current Task:** 4.1
 
 ---
 
@@ -27,8 +27,8 @@
 
 ### Phase 3 – Router Agent
 - [x] 3.1 – Design `router_prompt.md`
-- [ ] 3.2 – Implement `classify_email()` in `router.py`
-- [ ] 3.3 – Email Classification Tests (`tests/test_email_classification.py`)
+- [x] 3.2 – Implement `classify_email()` in `router.py`
+- [x] 3.3 – Email Classification Tests (`tests/test_email_classification.py`)
 
 ### Phase 4 – Auditor Agent
 - [ ] 4.1 – Design `auditor_prompt.md`
@@ -74,6 +74,8 @@
 - **2.3** (2025-12-11T22:45:00Z) - Validated extract_contract() function against both V1 and V2 contract PDFs. Function successfully extracts all fields including version detection (V1/V2 from filename and document header), vendor information (name, ACN, address), and all purchaser/property/pricing/finance/solicitor/deposit fields. Refined extractor_prompt.md to normalize finance terms field - extracts concise key phrase ("IS SUBJECT TO FINANCE" or "NOT subject to finance") by removing explanatory clauses, trailing punctuation, and annotations. Tested with both contracts: V1 achieved 100% match (27/27 fields) correctly extracting incorrect values (lot 59 instead of 95, jane.smith@outlook.com instead of janesmith@gmail.com, IS SUBJECT TO FINANCE instead of NOT), V2 achieved 100% match (27/27 fields) with all correct values. Both contracts extracted with average confidence 1.0. Created test_contract_extraction.py for validation
 - **2.4** (2025-12-11T23:30:00Z) - Created comprehensive tests/test_extraction.py with 22 tests validating all extraction functionality. Tests organized into 3 classes: TestEOIExtraction (10 tests), TestContractExtraction (10 tests), TestExtractionErrorHandling (2 tests). Tests verify: all required fields extracted, document types and versions detected, field values match ground truth exactly (using recursive nested comparison), critical fields present with high confidence (≥0.8), finance terms semantic parsing correct (handles negation), numeric fields are numbers (not strings), boolean fields are booleans, V1 extracts incorrect values accurately, V2 extracts correct values, vendor field present in contracts, error handling for missing/invalid PDFs. Set up DEEPINFRA_API_KEY in .env file and updated extractor.py to load it using python-dotenv. All 22 tests pass successfully (100% pass rate) after 25 minutes of LLM API calls. Tests validate pattern-based extraction logic works correctly without hardcoded demo values
 - **3.1** (2025-12-11T23:45:00Z) - Created comprehensive router_prompt.md (596 lines) for LLM fallback path in hybrid router architecture. Prompt provides detailed instructions for classifying ambiguous emails when deterministic pattern matching confidence < 0.8. Covers all 6 event types (EOI_SIGNED, CONTRACT_FROM_VENDOR, SOLICITOR_APPROVED_WITH_APPOINTMENT, DOCUSIGN_RELEASED, DOCUSIGN_BUYER_SIGNED, DOCUSIGN_EXECUTED) with detailed pattern descriptions and example scenarios. Includes critical appointment phrase extraction instructions (preserve raw phrase like "Thursday at 11:30am"), metadata extraction patterns (lot number, property address, purchaser names, contract version), confidence scoring guidelines (≥0.8 for auto-processing), edge case handling (7 ambiguity scenarios), and complete JSON output schema. Prompt emphasizes pattern-based logic that generalizes to any property deal, not hardcoded to demo values. Includes 4 detailed classification examples and decision tree for systematic classification approach
+- **3.2** (2025-12-12T00:15:00Z) - Implemented hybrid email classifier in src/agents/router.py with deterministic pattern matching + LLM fallback. Created ClassificationResult dataclass with event_type, confidence (0.0-1.0), method ("deterministic" or "llm"), and metadata fields. Implemented classify_deterministic() using sender domain patterns, subject line patterns, body content patterns, and attachment patterns (no hardcoded values). Implemented calculate_confidence() scoring algorithm considering sender match (0.35), subject matches (0.25 each, capped 0.40), body matches (0.15 each, capped 0.30), attachment match (0.20), and exclusivity bonus (0.15). Confidence threshold set to 0.8 for deterministic classification. Implemented metadata extraction functions: extract_lot_number(), extract_property_address(), extract_purchaser_names() (handles "John & Jane Smith" shared last name), extract_appointment_phrase() (preserves raw format), extract_contract_version() (handles VERSION_1, VERSION 1, V1 formats). Implemented classify_with_llm() fallback using router_prompt.md and DeepSeek V3.2. Main classify_email() function orchestrates hybrid approach: tries deterministic first, uses LLM if confidence < 0.8. All 6 event types correctly classified. Fixed purchaser name extraction to handle shared last names, fixed version extraction to handle underscores.
+- **3.3** (2025-12-12T00:30:00Z) - Created comprehensive tests/test_email_classification.py with 19 tests organized into 5 test classes validating all router functionality. Tests verify: all 7 incoming demo emails classified correctly (TestRouterClassifiesAllEmails - 7 tests), hybrid classification method works (high confidence uses deterministic, returns valid ClassificationResult - 3 tests), metadata extraction functions work correctly (lot number, property address, purchaser names with shared last name, appointment phrase, contract version - 5 tests), confidence scoring is in valid range [0.0-1.0] and clear emails score ≥0.8 (TestConfidenceScoring - 3 tests), all emails from manifest classified to correct event_type (TestRouterClassifiesAllEmailsFromManifest - 1 test). All critical metadata extracted: appointment phrase for SOLICITOR_APPROVED, contract version for CONTRACT_FROM_VENDOR, lot numbers and property addresses for all. All 19 tests pass (100% pass rate) in 1.84 seconds. Tests validate pattern-based classification without hardcoded demo values. Added emails_dir fixture to conftest.py for test access to email files.
 
 ### Current Task Notes
 
@@ -88,11 +90,11 @@ _None._
 ## Quick Reference
 
 **Total Tasks:** 31
-**Completed:** 12
-**Remaining:** 19
-**Progress:** 39%
+**Completed:** 14
+**Remaining:** 17
+**Progress:** 45%
 
-**Next Task:** 3.2 – Implement Hybrid `classify_email()` in `router.py`
+**Next Task:** 4.1 – Design `auditor_prompt.md`
 
 ---
 
