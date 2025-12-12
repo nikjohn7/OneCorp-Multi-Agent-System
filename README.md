@@ -4,6 +4,10 @@ A multi-agent system that shepherds property deals from Expression of Interest (
 
 ## Quick Start
 
+### Visual Dashboard (Recommended for Demos)
+
+The easiest way to see the system in action is through the visual web dashboard:
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -19,6 +23,26 @@ pip install -r requirements.txt
 # Set up API keys (create .env file)
 echo "DEEPINFRA_API_KEY=your_deepinfra_api_key_here" > .env
 
+# Launch the visual dashboard
+python run_ui.py
+```
+
+The dashboard will open automatically in your browser at `http://localhost:5000`. Click **"Start Demo"** to watch the multi-agent workflow execute in real-time.
+
+**Dashboard Features:**
+- Real-time workflow progress visualization
+- Live agent activity indicators
+- Contract mismatch detection display
+- Email generation tracking
+- SLA monitoring with countdown
+- State transition timeline
+- Event log with timestamps
+
+### Command Line Interface
+
+For headless execution or debugging:
+
+```bash
 # Run the full demo
 python -m src.main --demo
 
@@ -26,6 +50,12 @@ python -m src.main --demo
 python -m src.main --step eoi
 python -m src.main --step contract-v1
 python -m src.main --step contract-v2
+
+# Test SLA overdue scenario
+python -m src.main --test-sla
+
+# Reset database
+python -m src.main --reset
 
 # Run all tests
 pytest tests/ -v
@@ -41,6 +71,7 @@ pytest tests/test_end_to_end.py -v
 ```
 onecorp-mas/
 ├── CLAUDE.md          # Instructions for Claude Code
+├── run_ui.py          # Visual dashboard launcher
 ├── agent_docs/        # Implementation guides for each agent
 │   ├── extraction.md  # Extractor agent (PDF parsing, field extraction)
 │   ├── comparison.md  # Auditor agent (mismatch detection, risk scoring)
@@ -54,6 +85,9 @@ onecorp-mas/
 ├── src/               # Implementation
 │   ├── agents/        # Router, Extractor, Auditor, Comms
 │   ├── orchestrator/  # State machine, deal store, SLA monitor
+│   ├── ui/            # Visual web dashboard (Flask app)
+│   │   ├── app.py     # Flask server with SSE
+│   │   └── templates/ # HTML dashboard
 │   └── utils/         # PDF parsing, date resolution
 ├── tests/             # Unit and integration tests
 └── n8n/               # Workflow export (if using n8n)
@@ -186,9 +220,11 @@ This multi-agent system directly addresses the evaluation criteria outlined in `
 - **Limitations acknowledged:** See Safety & Limitations section below
 
 ### 7. Presentation & User Experience
+- **Visual web dashboard:** Real-time workflow visualization with animated agent activity
 - **Clear CLI interface:** `--demo`, `--step`, `--test-sla` modes for different use cases
 - **Comprehensive demo script:** 3-minute walkthrough in `docs/demo-script.md`
-- **Visual outputs:** Structured logging shows agent decisions and state transitions
+- **Live event streaming:** Server-Sent Events (SSE) for real-time updates without page refresh
+- **Non-technical friendly:** Visual indicators and status badges make the workflow accessible to all audiences
 - **Complete documentation:** Architecture docs, implementation guides, test coverage
 
 ## Safety, Guardrails & Limitations

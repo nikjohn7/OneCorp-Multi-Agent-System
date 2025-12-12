@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneCorp MAS - Contract Workflow Dashboard</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-highlight: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --accent-cyan: #06b6d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-highlight) 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--bg-highlight);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-highlight);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .workflow-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Workflow Steps */
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .workflow-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: var(--bg-highlight);
+            z-index: 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-highlight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .step.active .step-icon {
+            background: var(--accent-blue);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .step.completed .step-icon {
+            background: var(--accent-green);
+        }
+
+        .step.error .step-icon {
+            background: var(--accent-red);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: var(--text-primary);
+        }
+
+        /* Deal Info */
+        .deal-info {
+            background: var(--bg-highlight);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .deal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .info-value.state {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .state-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--accent-blue);
+        }
+
+        .state-badge.executed {
+            background: var(--accent-green);
+        }
+
+        .state-badge.error {
+            background: var(--accent-red);
+        }
+
+        .state-badge.warning {
+            background: var(--accent-orange);
+        }
+
+        /* Agent Cards */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .agent-card {
+            background: var(--bg-highlight);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .agent-card.active {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .agent-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            margin: 0 auto 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .agent-card.router .agent-icon { background: rgba(59, 130, 246, 0.2); }
+        .agent-card.extractor .agent-icon { background: rgba(168, 85, 247, 0.2); }
+        .agent-card.auditor .agent-icon { background: rgba(249, 115, 22, 0.2); }
+        .agent-card.comms .agent-icon { background: rgba(34, 197, 94, 0.2); }
+        .agent-card.orchestrator .agent-icon { background: rgba(6, 182, 212, 0.2); }
+
+        .agent-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .agent-status {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .agent-card.active .agent-status {
+            color: var(--accent-blue);
+        }
+
+        /* State Machine Visualization */
+        .state-flow {
+            background: var(--bg-highlight);
+            border-radius: 12px;
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .state-timeline {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .state-node {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border: 2px solid transparent;
+        }
+
+        .state-node.current {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .state-node.past {
+            opacity: 0.6;
+        }
+
+        .state-arrow {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.25rem;
+        }
+
+        /* Event Log */
+        .event-log {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--bg-highlight);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .event-icon.state { background: rgba(59, 130, 246, 0.2); }
+        .event-icon.agent { background: rgba(168, 85, 247, 0.2); }
+        .event-icon.email { background: rgba(34, 197, 94, 0.2); }
+        .event-icon.error { background: rgba(239, 68, 68, 0.2); }
+        .event-icon.sla { background: rgba(249, 115, 22, 0.2); }
+
+        .event-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .event-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.125rem;
+        }
+
+        .event-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .event-time {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        /* Mismatches */
+        .mismatch-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .mismatch-item {
+            background: var(--bg-highlight);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--accent-red);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .mismatch-item.medium {
+            border-left-color: var(--accent-orange);
+        }
+
+        .mismatch-item.low {
+            border-left-color: var(--accent-blue);
+        }
+
+        .mismatch-field {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .severity-badge {
+            font-size: 0.65rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            background: var(--accent-red);
+        }
+
+        .severity-badge.medium { background: var(--accent-orange); }
+        .severity-badge.low { background: var(--accent-blue); }
+
+        .mismatch-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .mismatch-value {
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .mismatch-label {
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            margin-bottom: 0.125rem;
+        }
+
+        /* Emails Generated */
+        .email-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .email-item {
+            background: var(--bg-highlight);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .email-type {
+            font-size: 0.65rem;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .email-subject {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .email-recipients {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* SLA Section */
+        .sla-status {
+            background: var(--bg-highlight);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .sla-timer {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sla-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(249, 115, 22, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .sla-info {
+            flex: 1;
+        }
+
+        .sla-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .sla-deadline {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .sla-status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--accent-green);
+        }
+
+        .sla-status-badge.active {
+            background: var(--accent-orange);
+        }
+
+        .sla-status-badge.overdue {
+            background: var(--accent-red);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-highlight);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .status-dot.running {
+            background: var(--accent-green);
+            animation: pulse 1s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--accent-blue);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-highlight);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        @media (max-width: 1200px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .agents-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>
+            <div class="logo">O</div>
+            <span>OneCorp</span> Multi-Agent System
+        </h1>
+        <div class="controls">
+            <div class="status-indicator">
+                <div class="status-dot" id="connectionStatus"></div>
+                <span id="connectionText">Connecting...</span>
+            </div>
+            <button class="btn btn-secondary" id="resetBtn" onclick="resetDemo()">
+                Reset
+            </button>
+            <button class="btn btn-secondary" id="slaBtn" onclick="runSlaTest()" disabled>
+                Test SLA
+            </button>
+            <button class="btn btn-primary" id="startBtn" onclick="startDemo()">
+                <span>Start Demo</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="workflow-section">
+            <h2 class="section-title">Workflow Progress</h2>
+
+            <!-- Workflow Steps -->
+            <div class="workflow-steps">
+                <div class="step" data-step="1">
+                    <div class="step-icon">📄</div>
+                    <div class="step-label">EOI<br>Processing</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-icon">📝</div>
+                    <div class="step-label">Contract V1<br>(Errors)</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-icon">✅</div>
+                    <div class="step-label">Contract V2<br>(Corrected)</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-icon">⚖️</div>
+                    <div class="step-label">Solicitor<br>Approval</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-icon">🖊️</div>
+                    <div class="step-label">DocuSign<br>Flow</div>
+                </div>
+            </div>
+
+            <!-- Deal Info -->
+            <div class="deal-info">
+                <div class="deal-info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Deal ID</div>
+                        <div class="info-value" id="dealId">Pending...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Property</div>
+                        <div class="info-value" id="propertyInfo">Waiting for EOI</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Current State</div>
+                        <div class="info-value state">
+                            <span class="state-badge" id="currentState">IDLE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Cards -->
+            <h2 class="section-title">AI Agents</h2>
+            <div class="agents-grid">
+                <div class="agent-card router" data-agent="Router">
+                    <div class="agent-icon">📨</div>
+                    <div class="agent-name">Router</div>
+                    <div class="agent-status">Email Classification</div>
+                </div>
+                <div class="agent-card extractor" data-agent="Extractor">
+                    <div class="agent-icon">🔍</div>
+                    <div class="agent-name">Extractor</div>
+                    <div class="agent-status">PDF Parsing</div>
+                </div>
+                <div class="agent-card auditor" data-agent="Auditor">
+                    <div class="agent-icon">⚡</div>
+                    <div class="agent-name">Auditor</div>
+                    <div class="agent-status">Contract Comparison</div>
+                </div>
+                <div class="agent-card comms" data-agent="Comms">
+                    <div class="agent-icon">📧</div>
+                    <div class="agent-name">Comms</div>
+                    <div class="agent-status">Email Generation</div>
+                </div>
+                <div class="agent-card orchestrator" data-agent="Orchestrator">
+                    <div class="agent-icon">🎯</div>
+                    <div class="agent-name">Orchestrator</div>
+                    <div class="agent-status">State Machine</div>
+                </div>
+            </div>
+
+            <!-- State Flow -->
+            <h2 class="section-title">State Transitions</h2>
+            <div class="state-flow">
+                <div class="state-timeline" id="stateTimeline">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔄</div>
+                        <div>State transitions will appear here</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <!-- Event Log -->
+            <div class="sidebar-card">
+                <h2 class="section-title">Live Event Log</h2>
+                <div class="event-log" id="eventLog">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div>Events will appear here</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mismatches -->
+            <div class="sidebar-card">
+                <h2 class="section-title">Contract Mismatches</h2>
+                <div class="mismatch-list" id="mismatchList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔎</div>
+                        <div>No mismatches detected</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generated Emails -->
+            <div class="sidebar-card">
+                <h2 class="section-title">Generated Emails</h2>
+                <div class="email-list" id="emailList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📬</div>
+                        <div>No emails generated yet</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLA Status -->
+            <div class="sidebar-card">
+                <h2 class="section-title">SLA Monitor</h2>
+                <div class="sla-status" id="slaStatus">
+                    <div class="sla-timer">
+                        <div class="sla-icon">⏱️</div>
+                        <div class="sla-info">
+                            <div class="sla-label">Status</div>
+                            <div class="sla-deadline" id="slaDeadline">Not registered</div>
+                        </div>
+                        <span class="sla-status-badge" id="slaBadge">Inactive</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let eventSource = null;
+        let isRunning = false;
+        let stateHistory = [];
+        let hasMismatches = false;
+        let hasEmails = false;
+        let hasEvents = false;
+
+        // Initialize SSE connection
+        function initEventSource() {
+            eventSource = new EventSource('/api/events');
+
+            eventSource.onopen = () => {
+                document.getElementById('connectionStatus').className = 'status-dot connected';
+                document.getElementById('connectionText').textContent = 'Connected';
+            };
+
+            eventSource.onerror = () => {
+                document.getElementById('connectionStatus').className = 'status-dot';
+                document.getElementById('connectionText').textContent = 'Reconnecting...';
+            };
+
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleEvent(data);
+            };
+        }
+
+        // Handle incoming events
+        function handleEvent(event) {
+            const { type, data, timestamp } = event;
+
+            switch(type) {
+                case 'connected':
+                case 'ping':
+                    break;
+
+                case 'demo_start':
+                    isRunning = true;
+                    updateButtons();
+                    document.getElementById('connectionStatus').className = 'status-dot running';
+                    document.getElementById('connectionText').textContent = 'Running';
+                    break;
+
+                case 'step_start':
+                    updateStep(data.step, 'active');
+                    addEvent('agent', `Step ${data.step}: ${data.description}`, '', timestamp);
+                    break;
+
+                case 'step_complete':
+                    updateStep(data.step, 'completed');
+                    break;
+
+                case 'agent_active':
+                    setAgentActive(data.agent, true, data.task);
+                    addEvent('agent', `${data.agent} Agent`, data.task, timestamp);
+                    break;
+
+                case 'agent_complete':
+                    setAgentActive(data.agent, false, data.result || 'Complete');
+                    break;
+
+                case 'state_change':
+                    updateState(data.new_state);
+                    addStateNode(data.new_state);
+                    addEvent('state', `State: ${data.new_state}`, `via ${data.event}`, timestamp);
+                    break;
+
+                case 'deal_created':
+                    document.getElementById('dealId').textContent = data.deal_id;
+                    document.getElementById('propertyInfo').textContent = data.property;
+                    addEvent('state', 'Deal Created', data.property, timestamp);
+                    break;
+
+                case 'mismatch':
+                    addMismatch(data);
+                    break;
+
+                case 'email_generated':
+                    addEmail(data);
+                    addEvent('email', data.type, data.subject, timestamp);
+                    break;
+
+                case 'sla_registered':
+                    updateSLA('active', data.deadline);
+                    addEvent('sla', 'SLA Timer Registered', `Deadline: ${formatDate(data.deadline)}`, timestamp);
+                    break;
+
+                case 'sla_cancelled':
+                    updateSLA('complete', 'Cancelled - Buyer Signed');
+                    addEvent('sla', 'SLA Timer Cancelled', data.reason, timestamp);
+                    break;
+
+                case 'sla_alert':
+                    updateSLA('overdue', 'OVERDUE');
+                    addEvent('error', 'SLA OVERDUE ALERT', `Deal ${data.deal_id}`, timestamp);
+                    break;
+
+                case 'demo_complete':
+                    isRunning = false;
+                    updateButtons();
+                    updateState('EXECUTED', true);
+                    document.getElementById('connectionStatus').className = 'status-dot connected';
+                    document.getElementById('connectionText').textContent = 'Complete';
+                    addEvent('state', 'Demo Complete!', `${data.emails_generated} emails generated`, timestamp);
+                    break;
+
+                case 'sla_test_start':
+                    addEvent('sla', 'SLA Test Started', 'Simulating overdue scenario', timestamp);
+                    break;
+
+                case 'sla_test_complete':
+                    addEvent('sla', 'SLA Test Complete', data.alert_sent ? 'Alert sent' : 'No alert needed', timestamp);
+                    break;
+
+                case 'error':
+                    addEvent('error', 'Error', data.message, timestamp);
+                    isRunning = false;
+                    updateButtons();
+                    break;
+            }
+        }
+
+        // Update step visualization
+        function updateStep(stepNum, status) {
+            const step = document.querySelector(`.step[data-step="${stepNum}"]`);
+            if (step) {
+                step.className = `step ${status}`;
+            }
+        }
+
+        // Update agent card
+        function setAgentActive(agentName, active, status) {
+            const card = document.querySelector(`.agent-card[data-agent="${agentName}"]`);
+            if (card) {
+                if (active) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+                const statusEl = card.querySelector('.agent-status');
+                if (statusEl && status) {
+                    statusEl.textContent = status;
+                }
+            }
+        }
+
+        // Update current state badge
+        function updateState(state, isFinal = false) {
+            const badge = document.getElementById('currentState');
+            badge.textContent = state;
+            badge.className = 'state-badge';
+            if (state === 'EXECUTED') {
+                badge.classList.add('executed');
+            } else if (state.includes('ERROR') || state.includes('DISCREPANC')) {
+                badge.classList.add('warning');
+            }
+        }
+
+        // Add state node to timeline
+        function addStateNode(state) {
+            const timeline = document.getElementById('stateTimeline');
+
+            // Clear empty state if first node
+            if (stateHistory.length === 0) {
+                timeline.innerHTML = '';
+            }
+
+            // Mark previous node as past
+            const prevNodes = timeline.querySelectorAll('.state-node.current');
+            prevNodes.forEach(node => {
+                node.classList.remove('current');
+                node.classList.add('past');
+            });
+
+            // Add arrow if not first
+            if (stateHistory.length > 0) {
+                const arrow = document.createElement('span');
+                arrow.className = 'state-arrow';
+                arrow.textContent = '→';
+                timeline.appendChild(arrow);
+            }
+
+            // Add new node
+            const node = document.createElement('div');
+            node.className = 'state-node current';
+            node.textContent = state;
+            timeline.appendChild(node);
+
+            stateHistory.push(state);
+
+            // Scroll to end
+            timeline.scrollLeft = timeline.scrollWidth;
+        }
+
+        // Add event to log
+        function addEvent(type, title, desc, timestamp) {
+            const log = document.getElementById('eventLog');
+
+            // Clear empty state if first event
+            if (!hasEvents) {
+                log.innerHTML = '';
+                hasEvents = true;
+            }
+
+            const icons = {
+                state: '🔄',
+                agent: '🤖',
+                email: '📧',
+                error: '⚠️',
+                sla: '⏱️'
+            };
+
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `
+                <div class="event-icon ${type}">${icons[type] || '📌'}</div>
+                <div class="event-content">
+                    <div class="event-title">${title}</div>
+                    <div class="event-desc">${desc}</div>
+                </div>
+                <div class="event-time">${formatTime(timestamp)}</div>
+            `;
+
+            log.insertBefore(item, log.firstChild);
+
+            // Keep only last 50 events
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Add mismatch to list
+        function addMismatch(data) {
+            const list = document.getElementById('mismatchList');
+
+            // Clear empty state if first mismatch
+            if (!hasMismatches) {
+                list.innerHTML = '';
+                hasMismatches = true;
+            }
+
+            const severityClass = data.severity.toLowerCase();
+            const item = document.createElement('div');
+            item.className = `mismatch-item ${severityClass}`;
+            item.innerHTML = `
+                <div class="mismatch-field">
+                    ${data.field}
+                    <span class="severity-badge ${severityClass}">${data.severity}</span>
+                </div>
+                <div class="mismatch-values">
+                    <div class="mismatch-value">
+                        <div class="mismatch-label">EOI Value</div>
+                        ${data.eoi_value || 'N/A'}
+                    </div>
+                    <div class="mismatch-value">
+                        <div class="mismatch-label">Contract Value</div>
+                        ${data.contract_value || 'N/A'}
+                    </div>
+                </div>
+            `;
+
+            list.appendChild(item);
+        }
+
+        // Add email to list
+        function addEmail(data) {
+            const list = document.getElementById('emailList');
+
+            // Clear empty state if first email
+            if (!hasEmails) {
+                list.innerHTML = '';
+                hasEmails = true;
+            }
+
+            const item = document.createElement('div');
+            item.className = 'email-item';
+            item.innerHTML = `
+                <div class="email-type">${data.type.replace(/_/g, ' ')}</div>
+                <div class="email-subject">${data.subject}</div>
+                <div class="email-recipients">To: ${data.recipients.join(', ')}</div>
+            `;
+
+            list.appendChild(item);
+        }
+
+        // Update SLA status
+        function updateSLA(status, text) {
+            const badge = document.getElementById('slaBadge');
+            const deadline = document.getElementById('slaDeadline');
+
+            badge.className = `sla-status-badge ${status}`;
+
+            if (status === 'active') {
+                badge.textContent = 'Active';
+                deadline.textContent = formatDate(text);
+            } else if (status === 'overdue') {
+                badge.textContent = 'OVERDUE';
+                deadline.textContent = text;
+            } else {
+                badge.textContent = 'Complete';
+                deadline.textContent = text;
+            }
+        }
+
+        // Format timestamp for display
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function formatDate(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleString('en-AU', {
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Button handlers
+        function updateButtons() {
+            document.getElementById('startBtn').disabled = isRunning;
+            document.getElementById('resetBtn').disabled = isRunning;
+            document.getElementById('slaBtn').disabled = isRunning || stateHistory.length === 0;
+        }
+
+        function startDemo() {
+            fetch('/api/start', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    }
+                });
+        }
+
+        function resetDemo() {
+            fetch('/api/reset', { method: 'POST' })
+                .then(() => {
+                    location.reload();
+                });
+        }
+
+        function runSlaTest() {
+            fetch('/api/sla-test', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    }
+                });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initEventSource();
+        });
+    </script>
+</body>
+</html>

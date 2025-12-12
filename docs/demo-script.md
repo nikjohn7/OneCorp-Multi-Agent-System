@@ -1,12 +1,80 @@
 # Demo Script — OneCorp Multi-Agent Contract Workflow
 
-**Target duration (spoken):** ~3 minutes  
-**Audience:** Judges evaluating multi-agent system design  
+**Target duration (spoken):** ~3 minutes
+**Audience:** Judges evaluating multi-agent system design
 **Goal:** Show end-to-end workflow + real agent collaboration + safety + generalizability
 
 ---
 
-## Spoken Track (3 minutes)
+## Option 1: Visual Dashboard (Recommended for Non-Technical Audiences)
+
+### Setup
+
+```bash
+python run_ui.py
+```
+
+The web dashboard will open at `http://localhost:5000`. This provides a real-time visual interface showing:
+- Workflow step progression with animated indicators
+- Live agent activity (Router, Extractor, Auditor, Comms, Orchestrator)
+- Contract mismatch detection with severity badges
+- Email generation tracking
+- SLA monitoring with countdown timer
+- State transition timeline
+- Live event log
+
+### Demo Flow (3 minutes)
+
+**0:00–0:20 — Introduction**
+
+> "OneCorp processes property contracts through a shared inbox, which is slow and error-prone.
+> This multi-agent system automates the workflow using four specialized AI agents coordinated by an orchestrator."
+
+**[Show the architecture diagram on screen: `assets/architecture.svg`]**
+
+> "You're seeing the dashboard which will visualize the agents working together in real-time."
+
+**0:20–2:40 — Run the Demo**
+
+**[Click "Start Demo" button]**
+
+> "The workflow starts with the EOI. Watch the Extractor agent light up as it parses the PDF and establishes our source of truth."
+
+**[Point to agent cards lighting up, deal info populating]**
+
+> "Now Contract V1 arrives. The Auditor compares it field-by-field against the EOI.
+> Notice the mismatches appearing on the right — high-severity issues on lot number, price, and finance terms.
+> The Comms agent generates a discrepancy alert, and the workflow blocks progression until these are fixed."
+
+**[Point to mismatch panel showing 5 errors with severity badges]**
+
+> "The vendor sends an amended Contract V2, which automatically supersedes V1.
+> Auditor validates it — zero mismatches. Comms generates the solicitor email and the contract proceeds."
+
+**[Point to state transitions showing V1_HAS_DISCREPANCIES → V2_VALIDATED_OK]**
+
+> "Solicitor approves with an appointment time. The SLA timer starts — you can see the deadline registered.
+> DocuSign flow completes: released, buyer signs, vendor countersigns. Contract executed!"
+
+**[Point to final EXECUTED state and SLA status]**
+
+**2:40–3:00 — SLA Test (Optional)**
+
+**[Click "Test SLA" button]**
+
+> "If we simulate the buyer not signing in time, the SLA monitor fires an overdue alert.
+> This keeps humans in the loop for intervention on stalled deals."
+
+**[Point to SLA alert appearing in email list]**
+
+> "The system demonstrates clear agent collaboration, safety guardrails, and generalizability.
+> Happy to answer questions."
+
+---
+
+## Option 2: Command Line Interface (For Technical Audiences)
+
+### Spoken Track (3 minutes)
 
 ### 0:00–0:20 — Problem + Architecture
 
@@ -89,6 +157,21 @@ python -m src.main --test-sla
 ---
 
 ## Appendix A — Off‑Camera Setup (not read aloud)
+
+### For Visual Dashboard Demo
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt  # Ensure Flask is installed
+python run_ui.py
+```
+
+- Ensure `.env` has `DEEPINFRA_API_KEY=...`.
+- Open `http://localhost:5000` in browser
+- Have `assets/architecture.svg` open in another tab for reference
+- Test run once before demo (click Start Demo, wait for completion, click Reset)
+
+### For CLI Demo
 
 ```bash
 source .venv/bin/activate
