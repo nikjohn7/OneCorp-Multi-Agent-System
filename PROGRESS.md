@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-12T02:10:00Z
-**Current Phase:** 6 (Orchestrator)
-**Current Task:** 6.1
+**Last Updated:** 2025-12-12T03:41:06Z
+**Current Phase:** 7 (Integration)
+**Current Task:** 7.1
 
 ---
 
@@ -41,10 +41,10 @@
 - [x] 5.3 – Comms Tests (`tests/test_comms.py`)
 
 ### Phase 6 – Orchestrator
-- [ ] 6.1 – Implement Workflow `state_machine.py`
-- [ ] 6.2 – Implement `deal_store.py` (SQLite Persistence)
-- [ ] 6.3 – Implement `sla_monitor.py`
-- [ ] 6.4 – State Transition Tests (`tests/test_state_transitions.py`)
+- [x] 6.1 – Implement Workflow `state_machine.py`
+- [x] 6.2 – Implement `deal_store.py` (SQLite Persistence)
+- [x] 6.3 – Implement `sla_monitor.py`
+- [x] 6.4 – State Transition Tests (`tests/test_state_transitions.py`)
 
 ### Phase 7 – Integration
 - [ ] 7.1 – CLI Entry Point in `src/main.py`
@@ -83,6 +83,10 @@
 - **5.1** (2025-12-12T02:10:00Z) - Created comms_prompt.md instructing Qwen3 to write natural outbound email bodies from required-field checklists without inventing facts.
 - **5.2** (2025-12-12T02:10:00Z) - Implemented hybrid Comms agent in src/agents/comms.py: deterministic headers/fallback bodies + Qwen3 phrasing layer via DeepInfra (temperature ~0.35) with mandatory-field post-validation and safe fallback.
 - **5.3** (2025-12-12T02:10:00Z) - Added tests/test_comms.py validating all four builders against required content; tests run with use_llm=False for determinism.
+- **6.1** (2025-12-12T03:24:21Z) - Implemented deterministic orchestrator state machine in src/orchestrator/state_machine.py with DealState enum (including versioned contract states), event-driven transitions, contract version superseding, solicitor/DocuSign guards, SLA deadline computation + check, and audit trail. Added opt-in auto-send-to-solicitor after validation via context flags.
+- **6.2** (2025-12-12T03:31:36Z) - Implemented SQLite persistence layer in src/orchestrator/deal_store.py with schema for deals, contracts, and events, JSON/datetime coercion helpers, upsert and retrieval API, and SLA pending-check query. Includes idempotent event insertion and supports in-memory DB for tests.
+- **6.3** (2025-12-12T03:35:26Z) - Implemented deterministic SLA monitor in src/orchestrator/sla_monitor.py. Provides SLARule with configurable offset/check time, registers/cancels SLA deadlines in DealStore, and periodically evaluates due deadlines via StateMachine.check_sla to emit SLA_OVERDUE events. Includes small alias methods for caller/test convenience.
+- **6.4** (2025-12-12T03:41:06Z) - Added orchestrator transition tests in tests/test_state_transitions.py covering happy-path state sequence vs expected_outputs, persistence round-trip via DealStore, SLA overdue scenario via SLAMonitor, and invalid-transition guards.
 
 ### Current Task Notes
 
@@ -97,11 +101,11 @@ _None._
 ## Quick Reference
 
 **Total Tasks:** 31
-**Completed:** 14
-**Remaining:** 17
-**Progress:** 45%
+**Completed:** 18
+**Remaining:** 13
+**Progress:** 58%
 
-**Next Task:** 4.1 – Design `auditor_prompt.md`
+**Next Task:** 7.1 – CLI Entry Point in `src/main.py`
 
 ---
 
