@@ -82,6 +82,21 @@ def print_mismatch(mismatch: Dict[str, Any]) -> None:
     print(f"    - {field_display}: EOI='{eoi_val}' vs Contract='{contract_val}' [{severity}]")
 
 
+def safe_format_currency(value: Any) -> str:
+    """Format a currency-like value safely.
+
+    Accepts numbers or strings; falls back to raw text on parse failure.
+    """
+    if value is None:
+        return ""
+    text = str(value).strip()
+    try:
+        number = int(float(text.replace("$", "").replace(",", "")))
+        return f"${number:,}"
+    except Exception:
+        return text
+
+
 class DemoOrchestrator:
     """Orchestrates the multi-agent demo workflow."""
 
@@ -176,7 +191,7 @@ class DemoOrchestrator:
         pricing = self.canonical_fields.get("pricing", {})
         total_price = pricing.get("total_price")
         if total_price:
-            self.print(f"  Total Price: ${total_price:,}")
+            self.print(f"  Total Price: {safe_format_currency(total_price)}")
 
         # Extract finance terms
         finance = self.canonical_fields.get("finance", {})
@@ -815,7 +830,7 @@ Examples:
   python -m src.main --step contract-v1  Process V1 contract
   python -m src.main --step contract-v2  Process V2 contract
   python -m src.main --test-sla          Test SLA overdue scenario
-  python -m src.main --reset             Reset database and run demo
+  python -m src.main --reset             Reset database and exit
         """,
     )
 
@@ -838,7 +853,7 @@ Examples:
     parser.add_argument(
         "--reset",
         action="store_true",
-        help="Reset the database before running",
+        help="Reset the database; exits if used alone",
     )
     parser.add_argument(
         "--quiet",
@@ -848,14 +863,26 @@ Examples:
 
     args = parser.parse_args()
 
-    # Default to demo if no arguments
-    if not any([args.demo, args.step, args.test_sla]):
-        args.demo = True
-
     # Setup paths
     paths = setup_paths()
 
-    # Reset database if requested
+    actions_selected = any([args.demo, args.step, args.test_sla])
+
+    # Reset-only mode: allow clearing state without running demo.
+    if args.reset and not actions_selected:
+        if paths["db_path"].exists():
+            print(f"Removing database: {paths['db_path']}")
+            os.remove(paths["db_path"])
+        else:
+            print("No database to remove.")
+        print("Database reset complete.")
+        return
+
+    # Default to demo if no action arguments were provided.
+    if not actions_selected:
+        args.demo = True
+
+    # Reset database before running if requested.
     if args.reset and paths["db_path"].exists():
         print(f"Removing database: {paths['db_path']}")
         os.remove(paths["db_path"])

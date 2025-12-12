@@ -4,6 +4,21 @@ This guide explains how to record a terminal or screen demo of the OneCorp Multi
 
 ---
 
+## Final Cut Checklist (read this first)
+
+- **Commands (in order):**
+  - `python -m src.main --reset`
+  - `python -m src.main --step eoi`
+  - `python -m src.main --step contract-v1`
+  - `python -m src.main --step contract-v2`
+  - `python -m src.main --step solicitor-approval`
+  - `python -m src.main --step docusign-flow`
+  - `python -m src.main --test-sla`
+- **Target pacing:** 0:00–0:20 architecture, 0:20–1:05 V1 discrepancies, 1:05–2:05 V2 happy path, 2:05–2:35 SLA, 2:35–3:00 recap.
+- **Proof moments to show on screen:** mismatch list, generated discrepancy email preview, V2 validation line, final EXECUTED state, SLA alert preview.
+
+---
+
 ## Quick Recording Options
 
 ### Option 1: Terminal Recording with asciinema (Recommended)
@@ -87,7 +102,7 @@ Before you start recording, ensure:
 
 - [ ] **Clean environment**
   ```bash
-  rm -f data/deals.db  # Reset database
+  python -m src.main --reset  # Reset database
   ```
 
 - [ ] **Dependencies installed**
@@ -129,7 +144,7 @@ cd onecorp-mas
 source .venv/bin/activate
 
 # Reset state
-rm -f data/deals.db
+python -m src.main --reset
 
 # Clear terminal for clean recording
 clear
@@ -148,11 +163,11 @@ clear
 # Process EOI
 python -m src.main --step eoi
 
-# Process V1 contract (will detect 5 mismatches)
+# Process V1 contract (will detect mismatches)
 python -m src.main --step contract-v1
 ```
 
-**Point out:** Discrepancy alert with 5 mismatches shown in output
+**Point out:** Discrepancy alert with mismatches shown in output
 
 #### 1:15–2:00 — Happy Path
 ```bash
@@ -226,7 +241,7 @@ python -m src.main --test-sla
 
 - **Trim silence/pauses:** Remove long waits during LLM API calls
 - **Add annotations:** Overlay text to highlight key moments
-  - "5 mismatches detected" during V1 validation
+  - "Mismatches detected" during V1 validation
   - "Contract validated ✓" during V2 approval
   - "SLA alert triggered" during overdue test
 - **Speed up:** 1.2–1.5x playback speed can keep within 3 minutes
@@ -306,8 +321,6 @@ Or record segments separately and edit together.
 **Solution:** Always reset before recording
 ```bash
 python -m src.main --reset
-# or
-rm -f data/deals.db
 ```
 
 ---
@@ -320,9 +333,9 @@ Here's what a well-paced 3-minute recording looks like:
 |------|----------|-------------------|
 | 0:00 | Show architecture diagram | Agent roles |
 | 0:20 | Run `--step eoi` | EOI extracted fields |
-| 0:35 | Run `--step contract-v1` | 5 mismatches detected |
+| 0:35 | Run `--step contract-v1` | Mismatches detected |
 | 0:50 | Show discrepancy alert | Field-by-field comparison |
-| 1:05 | Run `--step contract-v2` | 0 mismatches, validated |
+| 1:05 | Run `--step contract-v2` | Validated contract |
 | 1:20 | Run `--step solicitor-approval` | Appointment resolved |
 | 1:35 | Run `--step docusign-flow` | State: EXECUTED |
 | 1:50 | Run `--reset` | Database cleared |

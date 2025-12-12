@@ -16,7 +16,7 @@ The diagram shows all agents, data flows (blue solid arrows), control flows (red
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         ROUTER AGENT (Haiku)                                 │
+│                   ROUTER AGENT (DeepSeek V3.2)                               │
 │  • Classifies incoming emails by event type                                  │
 │  • Extracts key identifiers (lot, purchasers, property)                     │
 │  • Resolves relative dates ("Thursday at 11:30am")                          │
@@ -31,7 +31,7 @@ The diagram shows all agents, data flows (blue solid arrows), control flows (red
                   │                               │
                   ▼                               ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       EXTRACTOR AGENT (Haiku/Sonnet)                         │
+│                   EXTRACTOR AGENT (DeepSeek V3.2)                            │
 │  • Parses PDFs (EOI, contracts)                                              │
 │  • Extracts structured fields with confidence scores                         │
 │  • Supports targeted re-extraction on request                                │
@@ -39,7 +39,7 @@ The diagram shows all agents, data flows (blue solid arrows), control flows (red
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        AUDITOR AGENT (Sonnet)                                │
+│                    AUDITOR AGENT (Qwen3-235B)                                │
 │  • Compares contract fields against EOI (source of truth)                   │
 │  • Detects mismatches with severity classification                          │
 │  • Generates amendment recommendations                                       │
@@ -59,7 +59,7 @@ The diagram shows all agents, data flows (blue solid arrows), control flows (red
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         COMMS AGENT (Haiku)                                  │
+│                     COMMS AGENT (Qwen3-235B)                                 │
 │  • Generates outbound emails from templates                                  │
 │  • Contract to Solicitor                                                     │
 │  • Vendor DocuSign Release Request                                          │
@@ -141,7 +141,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Claude Haiku |
+| **Model** | DeepSeek V3.2 via DeepInfra |
 | **Input** | Raw email (subject, body, sender, recipients, timestamp) |
 | **Output** | Event classification, deal mapping, extracted identifiers |
 | **Key Capability** | Relative date resolution (e.g., "Thursday at 11:30am" → concrete datetime) |
@@ -158,7 +158,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Claude Haiku (standard), Sonnet (re-extraction) |
+| **Model** | DeepSeek V3.2 via DeepInfra (standard and re-extraction) |
 | **Input** | PDF document, document type indicator |
 | **Output** | Structured fields with confidence scores |
 | **Key Capability** | Semantic parsing of finance terms, table extraction |
@@ -174,7 +174,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Claude Sonnet |
+| **Model** | Deterministic core + optional Qwen3-235B via DeepInfra |
 | **Input** | EOI fields, Contract fields |
 | **Output** | Validation result, mismatches, risk score, amendment recommendation |
 | **Key Capability** | Semantic comparison (boolean finance terms), severity classification |
@@ -188,7 +188,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Claude Haiku |
+| **Model** | Deterministic templates + optional Qwen3-235B via DeepInfra |
 | **Input** | Email type, deal context, comparison results |
 | **Output** | Formatted email (from, to, subject, body, attachments) |
 | **Key Capability** | Template-based generation with context injection |
@@ -292,7 +292,7 @@ When a critical field has low confidence or semantic ambiguity:
 |-----------|------------|-----------|
 | Orchestration | n8n / Python | Visual workflow, easy state management |
 | State Storage | SQLite | Lightweight, sufficient for demo |
-| LLM Provider | Anthropic API | Claude Haiku (fast/cheap), Sonnet (reasoning) |
+| LLM Provider | DeepInfra OpenAI‑compatible API | DeepSeek V3.2 (routing/extraction), Qwen3-235B (reasoning/comms) |
 | PDF Parsing | pdfplumber / PyMuPDF | Reliable text + table extraction |
 | Date Parsing | python-dateutil | Relative date resolution |
 

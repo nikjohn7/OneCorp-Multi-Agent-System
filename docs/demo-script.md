@@ -1,264 +1,122 @@
 # Demo Script — OneCorp Multi-Agent Contract Workflow
 
-**Duration:** 3 minutes  
+**Target duration (spoken):** ~3 minutes  
 **Audience:** Judges evaluating multi-agent system design  
-**Goal:** Demonstrate end-to-end workflow automation with meaningful agent collaboration
+**Goal:** Show end-to-end workflow + real agent collaboration + safety + generalizability
 
 ---
 
-## Pre-Demo Setup
+## Spoken Track (3 minutes)
 
-```bash
-# Ensure clean state
-cd onecorp-mas
-rm -f data/deals.db  # Reset database
+### 0:00–0:20 — Problem + Architecture
 
-# Verify dependencies
-pip install -r requirements.txt
+> “OneCorp currently processes post‑EOI contracts through a shared inbox, and the workflow is slow and error‑prone.  
+> This system automates it end‑to‑end using four LLM agents plus a deterministic orchestrator.”
 
-# Optional: Split terminal to show logs alongside output
-```
+> “Router classifies incoming emails into events. Extractor parses PDFs into structured fields with confidence. Auditor compares contract vs EOI and scores risk. Comms generates outbound emails from templates. The orchestrator enforces state transitions and SLAs.”
 
----
+**[Show `assets/architecture.svg` briefly.]**
 
-## Demo Flow Overview
-
-| Time | Phase | What Judges See |
-|------|-------|-----------------|
-| 0:00–0:30 | Introduction | Problem statement, agent architecture |
-| 0:30–1:15 | Discrepancy Detection | V1 contract fails validation, alert generated |
-| 1:15–2:00 | Happy Path | V2 validates, solicitor flow, DocuSign |
-| 2:00–2:30 | SLA Alerting | Demonstrate deadline monitoring |
-| 2:30–3:00 | Wrap-up | Architecture recap, Q&A setup |
+> “For demo speed we’ll step through events directly; in inbox mode Router would drive these steps automatically.”
 
 ---
 
-## Script
-
-### 0:00–0:30 — Introduction
-
-**[Show: Architecture diagram or slide]**
-
-> "OneCorp processes property contracts through a shared email inbox. Today I'll demonstrate a multi-agent system that automates this workflow—from contract validation to execution."
-
-> "The system has four LLM-based agents coordinated by a deterministic orchestrator:"
-> - **Router** — classifies incoming emails, extracts deal identifiers
-> - **Extractor** — parses PDFs, extracts structured fields with confidence scores
-> - **Auditor** — compares contracts against the EOI, detects mismatches
-> - **Comms** — generates all outbound emails from templates
-
-> "Let's see it in action with a real deal: Lot 95, Fake Rise, for purchasers John and Jane Smith."
-
----
-
-### 0:30–1:15 — Discrepancy Detection (The Critical Test)
-
-**[Run: Process EOI and V1 Contract]**
+### 0:20–1:05 — V1 Discrepancy Detection (critical path)
 
 ```bash
 python -m src.main --step eoi
 ```
 
-**Narrate while running:**
-> "First, the EOI email arrives. The Router classifies it as `EOI_SIGNED` and the Extractor parses the PDF to establish our source of truth."
-
-**[Point to log output showing extracted fields]**
-> "We've extracted: Lot 95, total price $550,000, NOT subject to finance."
+> “We ingest the signed EOI first. Extractor establishes the source of truth — lot details, purchasers, price, and finance terms — and the orchestrator creates a deal.”
 
 ```bash
 python -m src.main --step contract-v1
 ```
 
-**Narrate:**
-> "Now the vendor sends Contract V1. Watch what happens when the Auditor compares it to the EOI..."
+> “Now Contract V1 arrives. Auditor compares every critical field to the EOI.  
+> You’ll see multiple mismatches, including HIGH‑severity issues like lot/price/finance terms.  
+> Comms then generates a discrepancy alert email with field‑by‑field diffs, and the orchestrator blocks the workflow from going to solicitor.”
 
-**[Point to comparison output]**
-> "The Auditor detected **5 mismatches**:"
-> - Lot number: 59 instead of 95 — **HIGH severity**
-> - Total price: $565,000 instead of $550,000 — **HIGH severity**
-> - Build price: $315,000 instead of $300,000 — **MEDIUM severity**
-> - Jane's email: outlook instead of gmail — **LOW severity**
-> - Finance terms: 'Subject to' instead of 'NOT subject to' — **HIGH severity**
-
-> "The system automatically generates a discrepancy alert email..."
-
-**[Show generated alert email]**
-> "This goes to the internal support team with exact field-by-field comparison and amendment recommendations. The contract is **blocked** from proceeding to solicitor."
-
-**Key point for judges:**
-> "Notice the agents collaborated here: Router identified the email, Extractor parsed both documents, Auditor compared them, and Comms generated the alert. Each agent has a single responsibility."
+**[Point to mismatch list + alert email preview.]**
 
 ---
 
-### 1:15–2:00 — Happy Path (V2 to Execution)
-
-**[Run: Process corrected V2 Contract]**
+### 1:05–2:05 — V2 Happy Path to Execution
 
 ```bash
 python -m src.main --step contract-v2
 ```
 
-**Narrate:**
-> "The vendor sends an amended contract. V1 is automatically marked as **superseded**. Let's validate V2..."
-
-**[Point to output]**
-> "Zero mismatches. The Auditor approves, and the system automatically generates the solicitor email."
-
-**[Show generated solicitor email]**
-> "Contract sent to Michael Ken at Big Legal Firm with V2 attached."
+> “Vendor sends an amended contract. The orchestrator automatically supersedes V1.  
+> Auditor re‑compares; V2 validates with no critical mismatches and we generate the solicitor email.”
 
 ```bash
 python -m src.main --step solicitor-approval
 ```
 
-**Narrate:**
-> "The solicitor replies with approval and a signing appointment: 'Thursday at 11:30am'. The Router extracts this relative date and resolves it to January 16th, 2025."
-
-**[Point to state transition]**
-> "State transitions to `SOLICITOR_APPROVED`. The system generates the vendor release request..."
-
-**[Show generated vendor email]**
-> "Asking BuildWell to release via DocuSign."
+> “Solicitor approves and provides a relative signing appointment like ‘Thursday at 11:30am’. Router/date resolver turns that into a concrete datetime and the SLA timer starts.”
 
 ```bash
 python -m src.main --step docusign-flow
 ```
 
-**Narrate:**
-> "DocuSign sends the envelope... buyer signs... vendor countersigns... and we reach `EXECUTED` state."
+> “DocuSign release → buyer signs → vendor countersigns. We reach EXECUTED state.”
 
-**[Show final state]**
-> "Contract fully executed. The deal is complete."
+**[Point to final state line.]**
 
 ---
 
-### 2:00–2:30 — SLA Alerting (Reliability Demo)
-
-**[Run: SLA test scenario]**
+### 2:05–2:35 — SLA Alerting (reliability)
 
 ```bash
 python -m src.main --test-sla
 ```
 
-**Narrate:**
-> "What if the buyer doesn't sign? Let's simulate: appointment was Thursday 11:30am, it's now Saturday 9:00am—48 hours later."
+> “If the buyer doesn’t sign within 48 hours of the appointment, SLA monitor fires and Comms generates an overdue alert. Humans stay in the loop for intervention.”
 
-**[Point to SLA check output]**
-> "The SLA monitor fires. No buyer signature detected. An overdue alert is generated..."
-
-**[Show SLA alert email]**
-> "Internal alert with: property details, appointment time, time elapsed, and recommended actions."
-
-**Key point for judges:**
-> "This demonstrates the system's reliability—it monitors deadlines and escalates appropriately, keeping humans in the loop for intervention."
+**[Point to SLA alert preview.]**
 
 ---
 
-### 2:30–3:00 — Wrap-up
+### 2:35–3:00 — Wrap‑up (tie to judging criteria)
 
-**[Show: Architecture diagram again]**
+> “This shows clear system design and collaboration: Router → Extractor → Auditor → Comms, coordinated by a deterministic state machine.  
+> Safety guardrails include confidence thresholds for critical fields, version superseding, and SLA monitoring.  
+> And it’s generalizable — agents use label/pattern reasoning, not demo‑specific hardcoding.”
 
-> "To summarize what we demonstrated:"
-
-> "**System Design** — Clear separation of concerns across 4 agents plus orchestrator"
-
-> "**Agent Collaboration** — Agents exchange structured data: Router → Extractor → Auditor → Comms, coordinated by state machine"
-
-> "**Task Performance** — End-to-end workflow from EOI to executed contract"
-
-> "**Safety & Reliability** — Confidence scoring, version superseding, SLA monitoring, human escalation for low-confidence fields"
-
-> "**Real-World Value** — This directly addresses OneCorp's pain points: manual contract checking, version control, deadline tracking"
-
-> "The system is also **generalizable**—it uses pattern-based extraction, not hardcoded values. It would work for any property deal, not just Lot 95."
-
-> "Happy to take questions."
+> “Happy to take questions.”
 
 ---
 
-## Backup Commands (If Needed)
+## Appendix A — Off‑Camera Setup (not read aloud)
 
-### Run Full Demo in One Command
 ```bash
-python -m src.main --demo
+source .venv/bin/activate
+python -m src.main --reset   # Clear prior state
 ```
 
-### Run All Tests
+- Ensure `.env` has `DEEPINFRA_API_KEY=...`.
+- Do a dry run once before recording: `python -m src.main --demo --quiet`.
+- Have `assets/architecture.svg` open in a tab.
+
+---
+
+## Appendix B — Backup Commands
+
 ```bash
+python -m src.main --demo --reset     # Full demo from clean state
+python -m src.main --step eoi
+python -m src.main --step contract-v1
+python -m src.main --step contract-v2
 pytest tests/ -v --tb=short
 ```
 
-### Show Specific Test Results
-```bash
-# Extraction accuracy
-pytest tests/test_extraction.py -v
-
-# Mismatch detection
-pytest tests/test_comparison.py -v
-
-# State transitions
-pytest tests/test_state_transitions.py -v
-```
-
-### Reset and Re-run
-```bash
-rm -f data/deals.db && python -m src.main --demo
-```
-
 ---
 
-## What to Highlight for Each Judging Criterion
+## Appendix C — Quick Q&A Reminders
 
-| Criterion | What to Show | When |
-|-----------|--------------|------|
-| **System Design** | Architecture diagram, agent responsibilities | Introduction |
-| **Agent Collaboration** | Data flow between agents during V1 comparison | Discrepancy section |
-| **Creativity** | Confidence scoring, re-extraction loop, version superseding | Throughout |
-| **Task Performance** | Full workflow completion | Happy path section |
-| **Real-World Value** | Direct mapping to OneCorp's stated problems | Wrap-up |
-| **Safety & Reliability** | SLA alerting, human escalation triggers | SLA section |
-| **Presentation** | Clear narrative, visible outputs | Entire demo |
+- **How agents communicate:** Structured JSON through orchestrator, not free‑text chaining.  
+- **Low confidence:** Critical fields <0.8 → re‑extract → then human review.  
+- **Why deterministic in demo:** Reproducible judging; LLM paths exist for production.  
+- **Generalization:** Patterns/labels drive extraction + comparison; fixtures are tests only.
 
----
-
-## Common Questions & Answers
-
-**Q: How do agents communicate?**
-> "Through the orchestrator. Each agent receives structured input and returns structured output. The orchestrator manages state and routes data between agents."
-
-**Q: What if extraction confidence is low?**
-> "Critical fields require ≥80% confidence. Below that, the Auditor can request re-extraction from a different section of the document. If still uncertain, it flags for human review."
-
-**Q: How does version superseding work?**
-> "When a new contract version arrives, the orchestrator marks all previous versions as superseded. Only the highest validated version can proceed to solicitor."
-
-**Q: What models do you use?**
-> "DeepSeek V3.2 for Router and Extractor (high-quality pattern detection and extraction). Qwen3-235B for Auditor and Comms (reasoning and natural language generation). The orchestrator is deterministic Python—no LLM needed for state management."
-
-**Q: How would this scale to multiple deals?**
-> "Each deal is isolated by deal_id. The orchestrator can process multiple deals concurrently. State is persisted in SQLite, so it survives restarts."
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| "Module not found" | Run `pip install -r requirements.txt` |
-| Database locked | Delete `data/deals.db` and re-run |
-| PDF extraction fails | Check pdfplumber installed, verify PDF path |
-| API rate limit | Add delay between agent calls or use cached responses |
-| Wrong state | Reset with `rm -f data/deals.db` |
-
----
-
-## Demo Checklist
-
-Before presenting:
-
-- [ ] Dependencies installed (`pip install -r requirements.txt`)
-- [ ] Database reset (`rm -f data/deals.db`)
-- [ ] API keys configured (if using live LLM calls)
-- [ ] Terminal font size readable for screen share
-- [ ] Architecture diagram ready to show
-- [ ] Backup: pre-recorded demo video if live fails

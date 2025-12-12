@@ -28,7 +28,12 @@
     <line x1="50" y1="75" x2="90" y2="75" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowblue)"/>
     <text x="100" y="80" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">Data Flow</text>
     <line x1="200" y1="75" x2="240" y2="75" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowred)"/>
-    <text x="250" y="80" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">Control Flow</text>
+    <text x="250" y="80" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">Control / Alerts</text>
+    <line x1="50" y1="95" x2="90" y2="95" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
+    <text x="100" y="100" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">State Progression</text>
+    <line x1="200" y1="95" x2="240" y2="95" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowgreen)"/>
+    <text x="250" y="100" font-family="Arial, sans-serif" font-size="12" fill="#1a1a1a">Validated Path</text>
+    <text x="50" y="118" font-family="Arial, sans-serif" font-size="11" fill="#6b7280" font-style="italic">Numbers show happy-path order</text>
   </g>
 
   <!-- External System: Shared Inbox -->
@@ -50,6 +55,8 @@
 
   <!-- Data flow: Inbox -> Router -->
   <line x1="600" y1="180" x2="600" y2="230" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowblue)"/>
+  <circle cx="625" cy="205" r="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="625" y="209" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">1</text>
 
   <!-- Extractor Agent -->
   <g id="extractor">
@@ -63,6 +70,8 @@
 
   <!-- Data flow: Router -> Extractor -->
   <path d="M 450,280 L 380,280 L 380,465" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
+  <circle cx="410" cy="280" r="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="410" y="284" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">2</text>
   <text x="395" y="350" font-family="Arial, sans-serif" font-size="10" fill="#2563eb">PDF attachments</text>
 
   <!-- Auditor Agent -->
@@ -78,6 +87,8 @@
 
   <!-- Data flow: Extractor -> Auditor -->
   <path d="M 380,465 L 520,465 L 520,475 L 820,475" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
+  <circle cx="600" cy="475" r="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="600" y="479" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">3</text>
   <text x="575" y="460" font-family="Arial, sans-serif" font-size="10" fill="#2563eb">Extracted data</text>
 
   <!-- Orchestrator (State Machine) -->
@@ -94,9 +105,9 @@
 
   <!-- Control flow: Router -> Orchestrator -->
   <line x1="600" y1="330" x2="600" y2="620" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowred)"/>
-  <text x="610" y="475" font-family="Arial, sans-serif" font-size="10" fill="#dc2626">Event: EOI_SIGNED,</text>
-  <text x="610" y="490" font-family="Arial, sans-serif" font-size="10" fill="#dc2626">CONTRACT_FROM_VENDOR,</text>
-  <text x="610" y="505" font-family="Arial, sans-serif" font-size="10" fill="#dc2626">SOLICITOR_APPROVED...</text>
+  <text x="620" y="370" font-family="Arial, sans-serif" font-size="10" fill="#dc2626">Incoming events</text>
+  <circle cx="625" cy="430" r="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="625" y="434" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#dc2626">4</text>
 
   <!-- Control flow: Auditor -> Orchestrator -->
   <path d="M 960,540 L 960,580 L 800,580 L 800,680" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrowred)"/>
@@ -116,6 +127,8 @@
 
   <!-- Control flow: Orchestrator -> Comms -->
   <path d="M 800,690 L 850,690 L 850,885 L 820,885" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrowred)"/>
+  <circle cx="830" cy="690" r="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="830" y="694" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#dc2626">5</text>
   <text x="860" y="790" font-family="Arial, sans-serif" font-size="10" fill="#dc2626">Trigger email</text>
   <text x="860" y="805" font-family="Arial, sans-serif" font-size="10" fill="#dc2626">generation</text>
 
@@ -158,6 +171,8 @@
 
   <!-- Data flow: Comms -> Outbound -->
   <line x1="960" y1="950" x2="960" y2="1020" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowblue)"/>
+  <circle cx="960" cy="985" r="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="960" y="989" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#2563eb">6</text>
 
   <!-- Workflow States Box -->
   <g id="workflow-states">
@@ -199,35 +214,35 @@
 
       <!-- Sent to Solicitor -->
       <circle cx="390" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="390" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Sent to</text>
-      <text x="390" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
+      <text x="390" y="1258" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Sent to</text>
+      <text x="390" y="1267" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
 
       <line x1="412" y1="1260" x2="448" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
       <!-- Solicitor Approved -->
       <circle cx="480" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="480" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
-      <text x="480" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Approved</text>
+      <text x="480" y="1258" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Solicitor</text>
+      <text x="480" y="1267" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Approved</text>
 
       <line x1="502" y1="1260" x2="538" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
       <!-- DocuSign Released -->
       <circle cx="570" cy="1260" r="22" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
-      <text x="570" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#92400e">DocuSign</text>
-      <text x="570" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#92400e">Released</text>
+      <text x="570" y="1258" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#92400e">DocuSign</text>
+      <text x="570" y="1267" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#92400e">Released</text>
 
       <line x1="592" y1="1260" x2="628" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
       <!-- Buyer Signed -->
       <circle cx="660" cy="1260" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-      <text x="660" y="1258" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Buyer</text>
-      <text x="660" y="1267" font-family="Arial, sans-serif" font-size="7" text-anchor="middle" fill="#1e3a8a">Signed</text>
+      <text x="660" y="1258" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Buyer</text>
+      <text x="660" y="1267" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#1e3a8a">Signed</text>
 
       <line x1="682" y1="1260" x2="718" y2="1260" stroke="#1f2937" stroke-width="2" marker-end="url(#arrowblack)"/>
 
       <!-- EXECUTED -->
       <circle cx="750" cy="1260" r="22" fill="#d1fae5" stroke="#16a34a" stroke-width="2"/>
-      <text x="750" y="1265" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="#14532d">EXECUTED</text>
+      <text x="750" y="1265" font-family="Arial, sans-serif" font-size="9" font-weight="bold" text-anchor="middle" fill="#14532d">EXECUTED</text>
 
       <!-- SLA Alert path from DocuSign Released -->
       <path d="M 570,1282 L 570,1340 L 840,1340" stroke="#dc2626" stroke-width="2" stroke-dasharray="3,3" fill="none" marker-end="url(#arrowred)"/>
