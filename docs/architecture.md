@@ -4,6 +4,10 @@
 
 The OneCorp Multi-Agent System (MAS) automates the post-EOI contract workflow using four LLM-based agents coordinated by a deterministic orchestrator.
 
+**Visual Architecture Diagram:** [`../assets/architecture.svg`](../assets/architecture.svg)
+
+The diagram shows all agents, data flows (blue solid arrows), control flows (red dashed arrows), and the complete workflow from EOI to executed contract.
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           SHARED INBOX                                       │

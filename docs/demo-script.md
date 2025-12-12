@@ -233,7 +233,7 @@ rm -f data/deals.db && python -m src.main --demo
 > "When a new contract version arrives, the orchestrator marks all previous versions as superseded. Only the highest validated version can proceed to solicitor."
 
 **Q: What models do you use?**
-> "Haiku for Router and Comms (fast, cheap, simple tasks). Sonnet for Extractor and Auditor (reasoning-heavy tasks). The orchestrator is deterministic Python—no LLM needed for state management."
+> "DeepSeek V3.2 for Router and Extractor (high-quality pattern detection and extraction). Qwen3-235B for Auditor and Comms (reasoning and natural language generation). The orchestrator is deterministic Python—no LLM needed for state management."
 
 **Q: How would this scale to multiple deals?**
 > "Each deal is isolated by deal_id. The orchestrator can process multiple deals concurrently. State is persisted in SQLite, so it survives restarts."
