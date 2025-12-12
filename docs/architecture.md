@@ -16,7 +16,7 @@ The diagram shows all agents, data flows (blue solid arrows), control flows (red
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                   ROUTER AGENT (DeepSeek V3.2)                               │
+│                   ROUTER AGENT (Claude Haiku 4.5)                            │
 │  • Classifies incoming emails by event type                                  │
 │  • Extracts key identifiers (lot, purchasers, property)                     │
 │  • Resolves relative dates ("Thursday at 11:30am")                          │
@@ -31,7 +31,7 @@ The diagram shows all agents, data flows (blue solid arrows), control flows (red
                   │                               │
                   ▼                               ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                   EXTRACTOR AGENT (DeepSeek V3.2)                            │
+│                   EXTRACTOR AGENT (Claude Haiku 4.5)                         │
 │  • Parses PDFs (EOI, contracts)                                              │
 │  • Extracts structured fields with confidence scores                         │
 │  • Supports targeted re-extraction on request                                │
@@ -141,7 +141,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | DeepSeek V3.2 via DeepInfra |
+| **Model** | Claude Haiku 4.5 via Anthropic |
 | **Input** | Raw email (subject, body, sender, recipients, timestamp) |
 | **Output** | Event classification, deal mapping, extracted identifiers |
 | **Key Capability** | Relative date resolution (e.g., "Thursday at 11:30am" → concrete datetime) |
@@ -158,7 +158,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | DeepSeek V3.2 via DeepInfra (standard and re-extraction) |
+| **Model** | Claude Haiku 4.5 via Anthropic (standard and re-extraction) |
 | **Input** | PDF document, document type indicator |
 | **Output** | Structured fields with confidence scores |
 | **Key Capability** | Semantic parsing of finance terms, table extraction |
@@ -174,7 +174,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Deterministic core + optional Qwen3-235B via DeepInfra |
+| **Model** | Deterministic core + Qwen3-235B via DeepInfra (LLM mode) |
 | **Input** | EOI fields, Contract fields |
 | **Output** | Validation result, mismatches, risk score, amendment recommendation |
 | **Key Capability** | Semantic comparison (boolean finance terms), severity classification |
@@ -188,7 +188,7 @@ for field in COMPARABLE_FIELDS:
 
 | Attribute | Value |
 |-----------|-------|
-| **Model** | Deterministic templates + optional Qwen3-235B via DeepInfra |
+| **Model** | Deterministic templates + Qwen3-235B via DeepInfra (LLM mode) |
 | **Input** | Email type, deal context, comparison results |
 | **Output** | Formatted email (from, to, subject, body, attachments) |
 | **Key Capability** | Template-based generation with context injection |
@@ -292,7 +292,7 @@ When a critical field has low confidence or semantic ambiguity:
 |-----------|------------|-----------|
 | Orchestration | n8n / Python | Visual workflow, easy state management |
 | State Storage | SQLite | Lightweight, sufficient for demo |
-| LLM Provider | DeepInfra OpenAI‑compatible API | DeepSeek V3.2 (routing/extraction), Qwen3-235B (reasoning/comms) |
+| LLM Providers | Anthropic API + DeepInfra OpenAI‑compatible API | Claude Haiku 4.5 (routing/extraction), Qwen3‑235B (auditing/comms) |
 | PDF Parsing | pdfplumber / PyMuPDF | Reliable text + table extraction |
 | Date Parsing | python-dateutil | Relative date resolution |
 

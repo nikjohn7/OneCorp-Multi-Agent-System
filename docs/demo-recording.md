@@ -111,7 +111,7 @@ Before you start recording, ensure:
   ```
 
 - [ ] **API keys configured**
-  - Verify `.env` file has `DEEPINFRA_API_KEY=...`
+  - Verify `.env` file has `ANTHROPIC_API_KEY=...` and `DEEPINFRA_API_KEY=...` (DeepInfra powers Qwen3‑235B)
 
 - [ ] **Terminal appearance**
   - Increase font size for readability (14-16pt minimum)

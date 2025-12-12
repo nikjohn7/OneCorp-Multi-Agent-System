@@ -262,7 +262,7 @@ python run_ui.py --port 8080
 ### Demo hangs or errors
 
 1. Check terminal for Python errors
-2. Verify `.env` has valid `DEEPINFRA_API_KEY`
+2. Verify `.env` has valid `ANTHROPIC_API_KEY` (Haiku) and `DEEPINFRA_API_KEY` (Qwen3‑235B)
 3. Check internet connection (LLM API calls)
 4. Click "Reset" and try again
 5. Check `data/deals.db` permissions

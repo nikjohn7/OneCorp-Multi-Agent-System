@@ -166,7 +166,7 @@ pip install -r requirements.txt  # Ensure Flask is installed
 python run_ui.py
 ```
 
-- Ensure `.env` has `DEEPINFRA_API_KEY=...`.
+- Ensure `.env` has `ANTHROPIC_API_KEY=...` (Haiku) and `DEEPINFRA_API_KEY=...` (Qwen3‑235B).
 - Open `http://localhost:5000` in browser
 - Have `assets/architecture.svg` open in another tab for reference
 - Test run once before demo (click Start Demo, wait for completion, click Reset)
@@ -178,7 +178,7 @@ source .venv/bin/activate
 python -m src.main --reset   # Clear prior state
 ```
 
-- Ensure `.env` has `DEEPINFRA_API_KEY=...`.
+- Ensure `.env` has `ANTHROPIC_API_KEY=...` (Haiku) and `DEEPINFRA_API_KEY=...` (Qwen3‑235B).
 - Do a dry run once before recording: `python -m src.main --demo --quiet`.
 - Have `assets/architecture.svg` open in a tab.
 
@@ -202,4 +202,3 @@ pytest tests/ -v --tb=short
 - **Low confidence:** Critical fields <0.8 → re‑extract → then human review.  
 - **Why deterministic in demo:** Reproducible judging; LLM paths exist for production.  
 - **Generalization:** Patterns/labels drive extraction + comparison; fixtures are tests only.
-

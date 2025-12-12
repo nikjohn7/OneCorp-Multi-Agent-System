@@ -1,6 +1,6 @@
 """Field extraction agent for EOI and contract documents.
 
-This module uses the DeepSeek V3.2 LLM via DeepInfra to extract structured
+This module uses Claude Haiku 4.5 via Anthropic to extract structured
 field data from property documents using pattern-based extraction logic.
 """
 
@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Union, Dict, Any, Optional
 
+import anthropic
 from dotenv import load_dotenv
-from openai import OpenAI
 
 from src.utils.pdf_parser import read_pdf_text
 
@@ -19,11 +19,30 @@ from src.utils.pdf_parser import read_pdf_text
 # Load environment variables from .env file
 load_dotenv()
 
-# API Configuration
-DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")
-DEEPINFRA_BASE_URL = "https://api.deepinfra.com/v1/openai"
-DEEPSEEK_MODEL = "deepseek-ai/DeepSeek-V3.2"
-MAX_TOKENS = 24000
+# API Configuration (Anthropic)
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+# Default to Haiku 4.5 for speed; override via EXTRACTOR_MODEL or ANTHROPIC_MODEL.
+CLAUDE_MODEL = os.getenv("EXTRACTOR_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-haiku-4-5"
+# Max output tokens. Anthropic models have lower caps than DeepInfra/OpenAI.
+MAX_TOKENS = int(os.getenv("EXTRACTOR_MAX_TOKENS", "4000"))
+
+
+def _content_blocks_to_text(content: Any) -> str:
+    """Normalize Anthropic content blocks to plain text."""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            text = getattr(block, "text", None)
+            if text is None and isinstance(block, dict):
+                text = block.get("text")
+            if text:
+                parts.append(str(text))
+        return "\n".join(parts).strip()
+    return str(content).strip()
 
 
 class ExtractionError(Exception):
@@ -54,7 +73,7 @@ def call_extraction_llm(
     source_filename: str,
     system_prompt: str
 ) -> Dict[str, Any]:
-    """Call DeepSeek V3.2 LLM to extract fields from document text.
+    """Call Claude Haiku 4.5 to extract fields from document text.
 
     Args:
         document_text: Plain text extracted from PDF
@@ -68,17 +87,13 @@ def call_extraction_llm(
     Raises:
         ExtractionError: If API call fails or response is invalid
     """
-    if not DEEPINFRA_API_KEY:
+    if not ANTHROPIC_API_KEY:
         raise ExtractionError(
-            "DEEPINFRA_API_KEY environment variable not set. "
+            "ANTHROPIC_API_KEY environment variable not set. "
             "Please set it to use the extraction agent."
         )
 
-    # Create OpenAI client configured for DeepInfra
-    client = OpenAI(
-        api_key=DEEPINFRA_API_KEY,
-        base_url=DEEPINFRA_BASE_URL,
-    )
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     # Construct user message with document context
     user_message = f"""Please extract structured fields from the following document.
@@ -93,19 +108,16 @@ Return a valid JSON object matching the schema specified in the system prompt.
 """
 
     try:
-        # Call LLM
-        response = client.chat.completions.create(
-            model=DEEPSEEK_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ],
+        response = client.messages.create(
+            model=CLAUDE_MODEL,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_message}],
             max_tokens=MAX_TOKENS,
             temperature=0.1,  # Low temperature for deterministic extraction
         )
 
         # Extract response content
-        content = response.choices[0].message.content
+        content = _content_blocks_to_text(response.content)
 
         if not content:
             raise ExtractionError("LLM returned empty response")
@@ -141,7 +153,7 @@ def extract_eoi(pdf_path: Union[str, Path]) -> Dict[str, Any]:
 
     This function:
     1. Extracts text from the PDF using pdfplumber
-    2. Sends the text to DeepSeek V3.2 LLM with extraction instructions
+    2. Sends the text to Claude Haiku 4.5 with extraction instructions
     3. Returns structured data matching the EOI schema
 
     Args:
@@ -227,7 +239,7 @@ def extract_contract(pdf_path: Union[str, Path]) -> Dict[str, Any]:
 
     This function:
     1. Extracts text from the PDF using pdfplumber
-    2. Sends the text to DeepSeek V3.2 LLM with extraction instructions
+    2. Sends the text to Claude Haiku 4.5 with extraction instructions
     3. Returns structured data matching the CONTRACT schema
 
     Args:

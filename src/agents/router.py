@@ -14,8 +14,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Literal, Optional, Any
 
+import anthropic
 from dotenv import load_dotenv
-from openai import OpenAI
 
 from src.utils.email_parser import ParsedEmail
 
@@ -23,11 +23,10 @@ from src.utils.email_parser import ParsedEmail
 # Load environment variables
 load_dotenv()
 
-# API Configuration
-DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")
-DEEPINFRA_BASE_URL = "https://api.deepinfra.com/v1/openai"
-DEEPSEEK_MODEL = "deepseek-ai/DeepSeek-V3.2"
-MAX_TOKENS = 4000
+# API Configuration (Anthropic)
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+CLAUDE_MODEL = os.getenv("ROUTER_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-haiku-4-5"
+MAX_TOKENS = int(os.getenv("ROUTER_MAX_TOKENS", "1200"))
 
 # Confidence threshold for deterministic classification
 CONFIDENCE_THRESHOLD = 0.8
@@ -579,9 +578,9 @@ def classify_with_llm(email: ParsedEmail) -> ClassificationResult:
     Raises:
         ClassificationError: If LLM call fails
     """
-    if not DEEPINFRA_API_KEY:
+    if not ANTHROPIC_API_KEY:
         raise ClassificationError(
-            "DEEPINFRA_API_KEY environment variable not set. "
+            "ANTHROPIC_API_KEY environment variable not set. "
             "Cannot use LLM fallback classification."
         )
 
@@ -606,24 +605,17 @@ def classify_with_llm(email: ParsedEmail) -> ClassificationResult:
 
 Return your classification as a JSON object following the output format specified in the system prompt."""
 
-    # Create OpenAI client configured for DeepInfra
-    client = OpenAI(
-        api_key=DEEPINFRA_API_KEY,
-        base_url=DEEPINFRA_BASE_URL,
-    )
-
     try:
-        response = client.chat.completions.create(
-            model=DEEPSEEK_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message},
-            ],
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        response = client.messages.create(
+            model=CLAUDE_MODEL,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_message}],
             temperature=0.1,  # Low temperature for consistent classification
             max_tokens=MAX_TOKENS,
         )
 
-        response_text = response.choices[0].message.content.strip()
+        response_text = _content_blocks_to_text(response.content).strip()
 
         # Parse JSON response (handle markdown code blocks)
         if "```json" in response_text:
@@ -646,6 +638,24 @@ Return your classification as a JSON object following the output format specifie
 
     except Exception as e:
         raise ClassificationError(f"LLM classification failed: {e}")
+
+
+def _content_blocks_to_text(content: Any) -> str:
+    """Normalize Anthropic content blocks to plain text."""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            text = getattr(block, "text", None)
+            if text is None and isinstance(block, dict):
+                text = block.get("text")
+            if text:
+                parts.append(str(text))
+        return "\n".join(parts).strip()
+    return str(content).strip()
 
 
 # ============================================================================

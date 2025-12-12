@@ -26,6 +26,9 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 app = Flask(__name__, template_folder=str(PROJECT_ROOT / "src" / "ui" / "templates"))
 
+# Demo pacing: pause between major workflow steps.
+DEMO_STEP_SLEEP_SECONDS = 2.5
+
 # Global event queue for SSE
 event_queue: queue.Queue = queue.Queue()
 
@@ -77,6 +80,10 @@ class UIOrchestrator:
     def __init__(self):
         self.demo = None
         self._lock = threading.Lock()
+
+    def demo_sleep(self) -> None:
+        """Pause briefly between major demo steps for readability."""
+        time.sleep(DEMO_STEP_SLEEP_SECONDS)
 
     def emit_step_start(self, step: int, name: str, description: str) -> None:
         """Emit step start event."""
@@ -260,6 +267,7 @@ class UIOrchestrator:
                 )
 
             self.emit_step_complete(6, "sla_test")
+            self.demo_sleep()
             emit_event("sla_test_complete", {"alert_sent": result is not None})
 
             demo.close()
@@ -272,7 +280,6 @@ class UIOrchestrator:
         self.emit_step_start(1, "eoi", "Processing Expression of Interest")
 
         self.emit_agent_active("Extractor", "Parsing EOI PDF")
-        # Short pause so the UI shows the agent as active before real work starts.
         time.sleep(0.2)
 
         eoi_data = self.demo.process_eoi()
@@ -287,6 +294,7 @@ class UIOrchestrator:
         self.emit_state_change("None", "EOI_RECEIVED", "EOI_SIGNED")
 
         self.emit_step_complete(1, "eoi")
+        self.demo_sleep()
 
     def _run_step_2(self) -> None:
         """Step 2: Process Contract V1."""
@@ -334,6 +342,7 @@ class UIOrchestrator:
         self.emit_state_change("CONTRACT_V1_HAS_DISCREPANCIES", "AMENDMENT_REQUESTED", "DISCREPANCY_ALERT_SENT")
 
         self.emit_step_complete(2, "contract_v1")
+        self.demo_sleep()
 
     def _run_step_3(self) -> None:
         """Step 3: Process Contract V2."""
@@ -362,6 +371,7 @@ class UIOrchestrator:
         self.emit_state_change("CONTRACT_V2_VALIDATED_OK", "SENT_TO_SOLICITOR", "SOLICITOR_EMAIL_SENT")
 
         self.emit_step_complete(3, "contract_v2")
+        self.demo_sleep()
 
     def _run_step_4(self) -> None:
         """Step 4: Solicitor Approval."""
@@ -380,9 +390,8 @@ class UIOrchestrator:
         sla_deadline = "2025-01-18T09:00:00+11:00"
         self.emit_sla_registered(sla_deadline, appointment_dt.isoformat())
 
-        self.emit_agent_active("Comms", "Generating vendor release request")
-        # Give the SLA registration a moment to be seen in the UI.
         time.sleep(0.25)
+        self.emit_agent_active("Comms", "Generating vendor release request")
         time.sleep(0.45)
 
         self.emit_email_generated("VENDOR_DOCUSIGN_RELEASE", vendor_email.subject, vendor_email.to_addrs)
@@ -391,6 +400,7 @@ class UIOrchestrator:
         self.emit_state_change("SOLICITOR_APPROVED", "DOCUSIGN_RELEASE_REQUESTED", "DOCUSIGN_RELEASE_REQUESTED")
 
         self.emit_step_complete(4, "solicitor")
+        self.demo_sleep()
 
     def _run_step_5(self) -> None:
         """Step 5: DocuSign Flow."""
@@ -420,9 +430,9 @@ class UIOrchestrator:
         self.emit_agent_complete("Router", "Contract fully executed")
         self.emit_state_change("BUYER_SIGNED", "EXECUTED", "DOCUSIGN_EXECUTED")
 
-        # Brief pause so the final state is visible before completion.
         time.sleep(0.2)
         self.emit_step_complete(5, "docusign")
+        self.demo_sleep()
 
 
 # Global orchestrator instance

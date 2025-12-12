@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -29,6 +30,10 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 logger = logging.getLogger(__name__)
+
+# Demo pacing: add a pause between major workflow steps.
+# Used only for demo execution, not agent logic.
+DEMO_STEP_SLEEP_SECONDS = 2.5
 
 # Project root
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -719,18 +724,23 @@ class DemoOrchestrator:
 
         # Step 1: Process EOI
         self.process_eoi()
+        self.demo_sleep()
 
         # Step 2: Process Contract V1 (with discrepancies)
         self.process_contract_v1()
+        self.demo_sleep()
 
         # Step 3: Process Contract V2 (corrected)
         self.process_contract_v2()
+        self.demo_sleep()
 
         # Step 4: Solicitor approval
         self.process_solicitor_approval()
+        self.demo_sleep()
 
         # Step 5: DocuSign flow
         self.process_docusign_flow()
+        self.demo_sleep()
 
         # Summary
         print_section("DEMO COMPLETE: Summary")
@@ -775,6 +785,14 @@ class DemoOrchestrator:
         if self._store:
             self._store.close()
 
+    def demo_sleep(self) -> None:
+        """Pause briefly between major demo steps.
+
+        The pause is applied after each workflow step to make the demo easier
+        to follow. It is intentionally not called around extractor invocations.
+        """
+        time.sleep(DEMO_STEP_SLEEP_SECONDS)
+
 
 def run_step(step: str, orchestrator: DemoOrchestrator) -> None:
     """Run a specific demo step."""
@@ -801,14 +819,18 @@ def run_step(step: str, orchestrator: DemoOrchestrator) -> None:
         if not deal:
             print("Processing EOI first (required)...")
             orchestrator.process_eoi()
+            orchestrator.demo_sleep()
 
             # For later steps, process intermediate steps
             if step in ["contract-v2", "solicitor-approval", "docusign-flow"]:
                 orchestrator.process_contract_v1()
+                orchestrator.demo_sleep()
             if step in ["solicitor-approval", "docusign-flow"]:
                 orchestrator.process_contract_v2()
+                orchestrator.demo_sleep()
             if step == "docusign-flow":
                 orchestrator.process_solicitor_approval()
+                orchestrator.demo_sleep()
         else:
             # Restore state from existing deal
             orchestrator.deal_id = deal_id
@@ -816,6 +838,7 @@ def run_step(step: str, orchestrator: DemoOrchestrator) -> None:
             orchestrator.eoi_data = {"fields": deal.canonical}
 
     steps_map[step]()
+    orchestrator.demo_sleep()
 
 
 def main() -> None:

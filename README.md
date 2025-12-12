@@ -21,7 +21,8 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # Set up API keys (create .env file)
-echo "DEEPINFRA_API_KEY=your_deepinfra_api_key_here" > .env
+echo "ANTHROPIC_API_KEY=your_anthropic_api_key_here" > .env   # Extractor/Router (Claude Haiku 4.5)
+echo "DEEPINFRA_API_KEY=your_deepinfra_api_key_here" >> .env # Auditor/Comms (Qwen3-235B)
 
 # Launch the visual dashboard
 python run_ui.py
@@ -64,7 +65,7 @@ pytest tests/ -v
 pytest tests/test_end_to_end.py -v
 ```
 
-**Note:** You'll need a [DeepInfra API key](https://deepinfra.com/) to run the LLM-based agents. The system uses DeepSeek V3.2 and Qwen3-235B models via DeepInfra's API.
+**Note:** You'll need an [Anthropic API key](https://console.anthropic.com/) for the Extractor and Router (Claude Haiku 4.5, model id `claude-haiku-4-5`), and a [DeepInfra API key](https://deepinfra.com/) for the Qwen3‑235B‑based Auditor and Comms LLM paths.
 
 ## Project Structure
 
@@ -123,10 +124,10 @@ Current pain points:
 
 | Agent | Responsibility | Model |
 |-------|----------------|-------|
-| Router | Email classification, deal mapping | DeepSeek V3.2 |
-| Extractor | PDF field extraction from EOI/contracts | DeepSeek V3.2 |
-| Auditor | Contract vs EOI comparison, risk scoring | Qwen3-235B |
-| Comms | Email generation (solicitor, vendor, alerts) | Qwen3-235B |
+| Router | Email classification, deal mapping | Claude Haiku 4.5 |
+| Extractor | PDF field extraction from EOI/contracts | Claude Haiku 4.5 |
+| Auditor | Contract vs EOI comparison, risk scoring | Qwen3-235B via DeepInfra |
+| Comms | Email generation (solicitor, vendor, alerts) | Qwen3-235B via DeepInfra |
 
 The **Orchestrator** (non-LLM) manages state transitions and SLA timers.
 
@@ -255,7 +256,8 @@ This multi-agent system directly addresses the evaluation criteria outlined in `
 ### Known Limitations
 
 1. **LLM dependency**
-   - Requires API access to DeepSeek V3.2 and Qwen3-235B via DeepInfra
+   - Requires API access to Claude Haiku 4.5 via Anthropic (Extractor/Router)
+   - Auditor/Comms LLM paths use Qwen3-235B via DeepInfra (requires `DEEPINFRA_API_KEY` when enabled)
    - Extraction accuracy depends on PDF quality and structure
    - Costs scale with number of deals processed
 

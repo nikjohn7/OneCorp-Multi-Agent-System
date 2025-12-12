@@ -7,7 +7,9 @@
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-echo "DEEPINFRA_API_KEY=your_key_here" > .env
+echo "ANTHROPIC_API_KEY=your_key_here" > .env
+echo "DEEPINFRA_API_KEY=your_deepinfra_key_here" >> .env  # Qwen3-235B for Auditor/Comms
+# (Default Anthropic model id: claude-haiku-4-5)
 
 # 2. Launch Visual Dashboard
 python run_ui.py
@@ -136,10 +138,12 @@ onecorp-mas/
 Create `.env` file:
 
 ```bash
-DEEPINFRA_API_KEY=your_deepinfra_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+DEEPINFRA_API_KEY=your_deepinfra_api_key_here  # Qwen3-235B for Auditor/Comms
 ```
 
-Get API key from: https://deepinfra.com/
+Get Anthropic API key from: https://console.anthropic.com/
+Get DeepInfra API key from: https://deepinfra.com/ (required for Qwen3‑235B Auditor/Comms).
 
 ---
 
@@ -155,10 +159,6 @@ python run_ui.py --port 8080  # Try different port
 ```bash
 # Check API key
 cat .env
-
-# Test API connection
-curl -H "Authorization: Bearer $DEEPINFRA_API_KEY" \
-  https://api.deepinfra.com/v1/inference/deepseek/deepseek-chat
 ```
 
 **Database locked**
