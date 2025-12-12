@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-12T00:30:00Z
+**Last Updated:** 2025-12-12T01:25:00Z
 **Current Phase:** 4 (Auditor Agent)
-**Current Task:** 4.1
+**Current Task:** 4.3
 
 ---
 
@@ -31,8 +31,8 @@
 - [x] 3.3 – Email Classification Tests (`tests/test_email_classification.py`)
 
 ### Phase 4 – Auditor Agent
-- [ ] 4.1 – Design `auditor_prompt.md`
-- [ ] 4.2 – Implement `compare_contract_to_eoi()` in `auditor.py`
+- [x] 4.1 – Design `auditor_prompt.md`
+- [x] 4.2 – Implement `compare_contract_to_eoi()` in `auditor.py`
 - [ ] 4.3 – Comparison Tests (`tests/test_comparison.py`)
 
 ### Phase 5 – Comms Agent
@@ -76,6 +76,8 @@
 - **3.1** (2025-12-11T23:45:00Z) - Created comprehensive router_prompt.md (596 lines) for LLM fallback path in hybrid router architecture. Prompt provides detailed instructions for classifying ambiguous emails when deterministic pattern matching confidence < 0.8. Covers all 6 event types (EOI_SIGNED, CONTRACT_FROM_VENDOR, SOLICITOR_APPROVED_WITH_APPOINTMENT, DOCUSIGN_RELEASED, DOCUSIGN_BUYER_SIGNED, DOCUSIGN_EXECUTED) with detailed pattern descriptions and example scenarios. Includes critical appointment phrase extraction instructions (preserve raw phrase like "Thursday at 11:30am"), metadata extraction patterns (lot number, property address, purchaser names, contract version), confidence scoring guidelines (≥0.8 for auto-processing), edge case handling (7 ambiguity scenarios), and complete JSON output schema. Prompt emphasizes pattern-based logic that generalizes to any property deal, not hardcoded to demo values. Includes 4 detailed classification examples and decision tree for systematic classification approach
 - **3.2** (2025-12-12T00:15:00Z) - Implemented hybrid email classifier in src/agents/router.py with deterministic pattern matching + LLM fallback. Created ClassificationResult dataclass with event_type, confidence (0.0-1.0), method ("deterministic" or "llm"), and metadata fields. Implemented classify_deterministic() using sender domain patterns, subject line patterns, body content patterns, and attachment patterns (no hardcoded values). Implemented calculate_confidence() scoring algorithm considering sender match (0.35), subject matches (0.25 each, capped 0.40), body matches (0.15 each, capped 0.30), attachment match (0.20), and exclusivity bonus (0.15). Confidence threshold set to 0.8 for deterministic classification. Implemented metadata extraction functions: extract_lot_number(), extract_property_address(), extract_purchaser_names() (handles "John & Jane Smith" shared last name), extract_appointment_phrase() (preserves raw format), extract_contract_version() (handles VERSION_1, VERSION 1, V1 formats). Implemented classify_with_llm() fallback using router_prompt.md and DeepSeek V3.2. Main classify_email() function orchestrates hybrid approach: tries deterministic first, uses LLM if confidence < 0.8. All 6 event types correctly classified. Fixed purchaser name extraction to handle shared last names, fixed version extraction to handle underscores.
 - **3.3** (2025-12-12T00:30:00Z) - Created comprehensive tests/test_email_classification.py with 19 tests organized into 5 test classes validating all router functionality. Tests verify: all 7 incoming demo emails classified correctly (TestRouterClassifiesAllEmails - 7 tests), hybrid classification method works (high confidence uses deterministic, returns valid ClassificationResult - 3 tests), metadata extraction functions work correctly (lot number, property address, purchaser names with shared last name, appointment phrase, contract version - 5 tests), confidence scoring is in valid range [0.0-1.0] and clear emails score ≥0.8 (TestConfidenceScoring - 3 tests), all emails from manifest classified to correct event_type (TestRouterClassifiesAllEmailsFromManifest - 1 test). All critical metadata extracted: appointment phrase for SOLICITOR_APPROVED, contract version for CONTRACT_FROM_VENDOR, lot numbers and property addresses for all. All 19 tests pass (100% pass rate) in 1.84 seconds. Tests validate pattern-based classification without hardcoded demo values. Added emails_dir fixture to conftest.py for test access to email files.
+- **4.1** (2025-12-12T01:12:00Z) - Designed src/agents/prompts/auditor_prompt.md with role, JSON output schema, comparable fields, type-specific comparison rules, severity/risk scoring guidance, amendment recommendation format, and next-action rules aligned to v1_mismatches fixture.
+- **4.2** (2025-12-12T01:25:00Z) - Implemented deterministic compare_contract_to_eoi in src/agents/auditor.py with mismatch detection, severity/risk scoring, formatted values, and amendment recommendations. Added optional Qwen3 Auditor LLM helper using DeepInfra DEEPINFRA_API_KEY.
 
 ### Current Task Notes
 
