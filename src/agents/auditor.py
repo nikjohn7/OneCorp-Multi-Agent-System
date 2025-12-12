@@ -445,8 +445,9 @@ def _finance_terms_conflict(finance_block: Any) -> bool:
     if is_subject is None or not terms:
         return False
     # Heuristic semantic check.
-    contains_not = "not subject" in terms or "not" in terms and "subject to finance" in terms
-    contains_subject = "subject to finance" in terms or "is subject" in terms
+    contains_not = "not subject" in terms or ("not" in terms and "subject to finance" in terms)
+    # Avoid counting "subject to finance" when it's part of a negation phrase.
+    contains_subject = ("subject to finance" in terms or "is subject" in terms) and not contains_not
     if contains_not and bool(is_subject) is True:
         return True
     if contains_subject and bool(is_subject) is False:
@@ -602,7 +603,7 @@ def compare_contract_to_eoi(
             )
         )
 
-    # Auto LLM trigger if any doubt detected.
+    # Detect doubt/ambiguity. Only affects flow in auto mode.
     has_doubt, doubt_reasons = _detect_doubt(eoi_fields, contract_fields, mismatches)
     if mode == "auto" and has_doubt and not llm_disabled:
         try:
@@ -619,14 +620,16 @@ def compare_contract_to_eoi(
 
     mismatch_count = len(mismatches)
     risk_score = _risk_score(mismatches)
-    is_valid = mismatch_count == 0 and not has_doubt
+    if mode == "auto" and has_doubt:
+        is_valid = False
+        next_action = "REQUEST_HUMAN_REVIEW"
+    else:
+        is_valid = mismatch_count == 0
+        next_action = "PROCEED_TO_SOLICITOR" if is_valid else "SEND_DISCREPANCY_ALERT"
+
     should_send_to_solicitor = is_valid
 
     amendment_recommendation = _generate_recommendation(mismatches) if mismatches else None
-    if has_doubt:
-        next_action = "REQUEST_HUMAN_REVIEW"
-    else:
-        next_action = "PROCEED_TO_SOLICITOR" if is_valid else "SEND_DISCREPANCY_ALERT"
 
     result = ComparisonResult(
         contract_version=contract_version,

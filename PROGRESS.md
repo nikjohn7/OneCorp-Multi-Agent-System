@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-12T01:25:00Z
-**Current Phase:** 4 (Auditor Agent)
-**Current Task:** 4.3
+**Last Updated:** 2025-12-12T02:10:00Z
+**Current Phase:** 6 (Orchestrator)
+**Current Task:** 6.1
 
 ---
 
@@ -31,14 +31,14 @@
 - [x] 3.3 – Email Classification Tests (`tests/test_email_classification.py`)
 
 ### Phase 4 – Auditor Agent
-- [x] 4.1 – Design `auditor_prompt.md`
-- [x] 4.2 – Implement `compare_contract_to_eoi()` in `auditor.py`
-- [ ] 4.3 – Comparison Tests (`tests/test_comparison.py`)
+ - [x] 4.1 – Design `auditor_prompt.md`
+ - [x] 4.2 – Implement `compare_contract_to_eoi()` in `auditor.py`
+- [x] 4.3 – Comparison Tests (`tests/test_comparison.py`)
 
 ### Phase 5 – Comms Agent
-- [ ] 5.1 – Design `comms_prompt.md`
-- [ ] 5.2 – Implement `comms.py` Email Builders
-- [ ] 5.3 – Comms Tests (`tests/test_comms.py`)
+- [x] 5.1 – Design `comms_prompt.md`
+- [x] 5.2 – Implement `comms.py` Email Builders
+- [x] 5.3 – Comms Tests (`tests/test_comms.py`)
 
 ### Phase 6 – Orchestrator
 - [ ] 6.1 – Implement Workflow `state_machine.py`
@@ -78,6 +78,11 @@
 - **3.3** (2025-12-12T00:30:00Z) - Created comprehensive tests/test_email_classification.py with 19 tests organized into 5 test classes validating all router functionality. Tests verify: all 7 incoming demo emails classified correctly (TestRouterClassifiesAllEmails - 7 tests), hybrid classification method works (high confidence uses deterministic, returns valid ClassificationResult - 3 tests), metadata extraction functions work correctly (lot number, property address, purchaser names with shared last name, appointment phrase, contract version - 5 tests), confidence scoring is in valid range [0.0-1.0] and clear emails score ≥0.8 (TestConfidenceScoring - 3 tests), all emails from manifest classified to correct event_type (TestRouterClassifiesAllEmailsFromManifest - 1 test). All critical metadata extracted: appointment phrase for SOLICITOR_APPROVED, contract version for CONTRACT_FROM_VENDOR, lot numbers and property addresses for all. All 19 tests pass (100% pass rate) in 1.84 seconds. Tests validate pattern-based classification without hardcoded demo values. Added emails_dir fixture to conftest.py for test access to email files.
 - **4.1** (2025-12-12T01:12:00Z) - Designed src/agents/prompts/auditor_prompt.md with role, JSON output schema, comparable fields, type-specific comparison rules, severity/risk scoring guidance, amendment recommendation format, and next-action rules aligned to v1_mismatches fixture.
 - **4.2** (2025-12-12T01:25:00Z) - Implemented deterministic compare_contract_to_eoi in src/agents/auditor.py with mismatch detection, severity/risk scoring, formatted values, and amendment recommendations. Added optional Qwen3 Auditor LLM helper using DeepInfra DEEPINFRA_API_KEY.
+- **4.3** (2025-12-12T01:33:00Z) - Added tests/test_comparison.py validating deterministic Auditor comparison vs fixtures; tests disable LLM auto-trigger to keep results stable.
+
+- **5.1** (2025-12-12T02:10:00Z) - Created comms_prompt.md instructing Qwen3 to write natural outbound email bodies from required-field checklists without inventing facts.
+- **5.2** (2025-12-12T02:10:00Z) - Implemented hybrid Comms agent in src/agents/comms.py: deterministic headers/fallback bodies + Qwen3 phrasing layer via DeepInfra (temperature ~0.35) with mandatory-field post-validation and safe fallback.
+- **5.3** (2025-12-12T02:10:00Z) - Added tests/test_comms.py validating all four builders against required content; tests run with use_llm=False for determinism.
 
 ### Current Task Notes
 
