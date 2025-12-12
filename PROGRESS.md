@@ -1,8 +1,8 @@
 # OneCorp MAS - Implementation Progress
 
-**Last Updated:** 2025-12-11T23:30:00Z
+**Last Updated:** 2025-12-11T23:45:00Z
 **Current Phase:** 3 (Router Agent)
-**Current Task:** 3.1
+**Current Task:** 3.2
 
 ---
 
@@ -26,7 +26,7 @@
 - [x] 2.4 – Extraction Tests (`tests/test_extraction.py`)
 
 ### Phase 3 – Router Agent
-- [ ] 3.1 – Design `router_prompt.md`
+- [x] 3.1 – Design `router_prompt.md`
 - [ ] 3.2 – Implement `classify_email()` in `router.py`
 - [ ] 3.3 – Email Classification Tests (`tests/test_email_classification.py`)
 
@@ -73,6 +73,7 @@
 - **2.2** (2025-12-11T22:30:00Z) - Implemented extract_eoi() function in src/agents/extractor.py using DeepSeek V3.2 via DeepInfra API. Function extracts text from PDF using pdfplumber, sends to LLM with extractor_prompt.md system prompt, and returns structured JSON matching ground-truth schema. Added openai>=1.0.0 package to requirements.txt for OpenAI-compatible API client. Implemented call_extraction_llm() helper with proper error handling, JSON parsing (handles markdown code blocks), and low temperature (0.1) for deterministic extraction. Also implemented extract_contract() function (for Task 2.3) with same architecture. Tested with demo EOI PDF - achieved 100% field match (30/30 fields) with ground truth after refining prompt for deposit calculation and address formatting edge cases. All critical fields extracted with confidence ≥0.8. Created test_extractor_manual.py for validation
 - **2.3** (2025-12-11T22:45:00Z) - Validated extract_contract() function against both V1 and V2 contract PDFs. Function successfully extracts all fields including version detection (V1/V2 from filename and document header), vendor information (name, ACN, address), and all purchaser/property/pricing/finance/solicitor/deposit fields. Refined extractor_prompt.md to normalize finance terms field - extracts concise key phrase ("IS SUBJECT TO FINANCE" or "NOT subject to finance") by removing explanatory clauses, trailing punctuation, and annotations. Tested with both contracts: V1 achieved 100% match (27/27 fields) correctly extracting incorrect values (lot 59 instead of 95, jane.smith@outlook.com instead of janesmith@gmail.com, IS SUBJECT TO FINANCE instead of NOT), V2 achieved 100% match (27/27 fields) with all correct values. Both contracts extracted with average confidence 1.0. Created test_contract_extraction.py for validation
 - **2.4** (2025-12-11T23:30:00Z) - Created comprehensive tests/test_extraction.py with 22 tests validating all extraction functionality. Tests organized into 3 classes: TestEOIExtraction (10 tests), TestContractExtraction (10 tests), TestExtractionErrorHandling (2 tests). Tests verify: all required fields extracted, document types and versions detected, field values match ground truth exactly (using recursive nested comparison), critical fields present with high confidence (≥0.8), finance terms semantic parsing correct (handles negation), numeric fields are numbers (not strings), boolean fields are booleans, V1 extracts incorrect values accurately, V2 extracts correct values, vendor field present in contracts, error handling for missing/invalid PDFs. Set up DEEPINFRA_API_KEY in .env file and updated extractor.py to load it using python-dotenv. All 22 tests pass successfully (100% pass rate) after 25 minutes of LLM API calls. Tests validate pattern-based extraction logic works correctly without hardcoded demo values
+- **3.1** (2025-12-11T23:45:00Z) - Created comprehensive router_prompt.md (596 lines) for LLM fallback path in hybrid router architecture. Prompt provides detailed instructions for classifying ambiguous emails when deterministic pattern matching confidence < 0.8. Covers all 6 event types (EOI_SIGNED, CONTRACT_FROM_VENDOR, SOLICITOR_APPROVED_WITH_APPOINTMENT, DOCUSIGN_RELEASED, DOCUSIGN_BUYER_SIGNED, DOCUSIGN_EXECUTED) with detailed pattern descriptions and example scenarios. Includes critical appointment phrase extraction instructions (preserve raw phrase like "Thursday at 11:30am"), metadata extraction patterns (lot number, property address, purchaser names, contract version), confidence scoring guidelines (≥0.8 for auto-processing), edge case handling (7 ambiguity scenarios), and complete JSON output schema. Prompt emphasizes pattern-based logic that generalizes to any property deal, not hardcoded to demo values. Includes 4 detailed classification examples and decision tree for systematic classification approach
 
 ### Current Task Notes
 
@@ -87,11 +88,11 @@ _None._
 ## Quick Reference
 
 **Total Tasks:** 31
-**Completed:** 11
-**Remaining:** 20
-**Progress:** 35%
+**Completed:** 12
+**Remaining:** 19
+**Progress:** 39%
 
-**Next Task:** 3.1 – Design `router_prompt.md`
+**Next Task:** 3.2 – Implement Hybrid `classify_email()` in `router.py`
 
 ---
 

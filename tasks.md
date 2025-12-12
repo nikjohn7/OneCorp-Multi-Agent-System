@@ -463,9 +463,11 @@ Create `tests/test_extraction.py` to validate that `extract_eoi` and `extract_co
 
 ---
 
-## Phase 3 – Router Agent
+## Phase 3 – Router Agent (Hybrid Approach)
 
-### Task: 3.1 – Design `router_prompt.md`
+This phase implements a **hybrid router** that uses deterministic pattern matching for high-confidence classifications and falls back to LLM for ambiguous cases. This approach saves approximately 90% of API calls while maintaining accuracy.
+
+### Task: 3.1 – Design `router_prompt.md` (LLM Fallback Path)
 
 ### Context
 
@@ -482,29 +484,34 @@ Create `tests/test_extraction.py` to validate that `extract_eoi` and `extract_co
 
 Create `src/agents/prompts/router_prompt.md` that explains how to classify emails into event types (EOI_SIGNED, CONTRACT_FROM_VENDOR, SOLICITOR_APPROVED_WITH_APPOINTMENT, DOCUSIGN_RELEASED, DOCUSIGN_BUYER_SIGNED, DOCUSIGN_EXECUTED, etc.).
 
+**Note:** This prompt is used as the **LLM fallback path** when deterministic pattern matching confidence is below 0.8. The prompt should be optimized for handling ambiguous cases that the deterministic classifier could not resolve with high confidence.
+
 ### Constraints
 
 * Must use pattern-based logic (no hardcoded demo values)
 * Must include clear instructions and event type definitions
 * Must follow existing markdown style in `src/agents/prompts/`
 * Prompt must describe how to use sender, subject line, body, and attachments as features
-* Must instruct the model to output a small JSON object with `event_type` and any extracted metadata (e.g. appointment phrase)
+* Must instruct the model to output a small JSON object with `event_type`, `confidence` score, and any extracted metadata (e.g. appointment phrase)
+* Prompt should emphasize handling edge cases and ambiguous patterns that deterministic matching couldn't resolve
 
 ### Acceptance Criteria
 
 * [ ] Prompt lists all event types present in `emails_manifest.json`
 * [ ] Prompt describes at least one example for each event type based on the dataset (without copying raw email text)
 * [ ] Prompt instructs extraction of appointment phrases when present
+* [ ] Prompt includes guidance for handling ambiguous cases (e.g., emails with mixed signals)
+* [ ] Prompt specifies the JSON output format including `event_type`, `confidence`, and `metadata`
 
 ### Output
 
 * Create: `src/agents/prompts/router_prompt.md`
 * Test with:
-  (Manual / later integration) `pytest tests/test_email_classification.py -q` after Tasks 3.2–3.3
+  (Manual / later integration) `pytest tests/test_email_classification.py -q` after Tasks 3.2–3.5
 
 ---
 
-### Task: 3.2 – Implement `classify_email()` in `router.py`
+### Task: 3.2 – Implement Hybrid `classify_email()` in `router.py`
 
 ### Context
 
@@ -520,27 +527,188 @@ Create `src/agents/prompts/router_prompt.md` that explains how to classify email
 
 ### Objective
 
-Implement `classify_email(parsed_email)` in `src/agents/router.py` that maps a parsed email object to a structured event with `event_type` and any relevant metadata.
+Implement a hybrid `classify_email(parsed_email)` in `src/agents/router.py` that:
+
+1. **First attempts deterministic pattern matching** with confidence scoring
+2. **If confidence >= 0.8**, returns the classification immediately (no LLM call)
+3. **If confidence < 0.8**, falls back to LLM using the `router_prompt.md`
+4. Returns a `ClassificationResult` with `event_type`, `confidence` score, and `method` used (`deterministic` vs `llm`)
 
 ### Constraints
 
 * Must use pattern-based logic (no hardcoded demo values)
 * Must include docstrings and type hints
 * Must follow existing code conventions in `src/agents/`
-* Logic should rely on patterns (sender domains, subject contains, body keywords, attachments) derived from `emails_manifest.json` and templates
-* Must be deterministic (no LLM calls inside this function for now)
+* Deterministic logic should rely on patterns (sender domains, subject contains, body keywords, attachments) derived from `emails_manifest.json` and templates
+* LLM fallback must use the prompt from `router_prompt.md`
+* Must define a `ClassificationResult` dataclass/TypedDict with:
+  * `event_type: str` - The classified event type
+  * `confidence: float` - Confidence score (0.0 to 1.0)
+  * `method: Literal["deterministic", "llm"]` - Which classification method was used
+  * `metadata: dict` - Any extracted metadata (e.g., appointment phrase)
+* Confidence threshold for deterministic classification: **0.8**
 
 ### Acceptance Criteria
 
 * [ ] All incoming emails in the dataset are classified into the correct `event_type` as specified in `emails_manifest.json`
-* [ ] For solicitor approval emails, the returned event includes the appointment phrase (e.g. “Thursday at 11:30am”) for later resolution
+* [ ] For solicitor approval emails, the returned event includes the appointment phrase (e.g. "Thursday at 11:30am") for later resolution
+* [ ] High-confidence emails (clear patterns) are classified deterministically without LLM calls
+* [ ] Ambiguous emails (confidence < 0.8) trigger LLM fallback classification
+* [ ] `ClassificationResult` includes `event_type`, `confidence`, `method`, and `metadata` fields
 * [ ] `pytest tests/test_email_classification.py::test_router_classifies_all_emails` passes
+* [ ] `pytest tests/test_email_classification.py::test_hybrid_classification_method` passes
 
 ### Output
 
 * Create / Update: `src/agents/router.py`
 * Test with:
-  `pytest tests/test_email_classification.py::test_router_classifies_all_emails -q`
+  `pytest tests/test_email_classification.py -q`
+
+---
+
+### Task: 3.2.1 – Implement Confidence Scoring Algorithm
+
+### Context
+
+* Read:
+
+  * `emails_manifest.json` (patterns for each event type)
+  * `data/emails/incoming/*.txt`
+  * `agent_docs/emails.md`
+* Reference:
+
+  * Task 3.2 (parent task)
+
+### Objective
+
+Implement a confidence scoring algorithm in `src/agents/router.py` that calculates how confident the deterministic classifier is about its classification. The algorithm should return a score between 0.0 and 1.0.
+
+### Constraints
+
+* Must use pattern-based logic (no hardcoded demo values)
+* Must include docstrings and type hints
+* Must follow existing code conventions in `src/agents/`
+* Scoring factors should include:
+  * **Sender domain match** (e.g., `@docusign.com` for DocuSign events)
+  * **Subject line keyword match** (e.g., "Expression of Interest", "Contract", "Signed")
+  * **Body keyword density** (presence of key phrases)
+  * **Attachment type match** (e.g., PDF attachments for contracts)
+  * **Pattern exclusivity** (does the email match only one event type or multiple?)
+* Higher scores when multiple strong signals align; lower scores when signals are mixed or weak
+
+### Acceptance Criteria
+
+* [ ] Function `calculate_confidence(parsed_email, candidate_event_type) -> float` is implemented
+* [ ] Returns values in range [0.0, 1.0]
+* [ ] Clear, unambiguous emails (e.g., DocuSign from `@docusign.com` with "Completed" subject) score >= 0.8
+* [ ] Ambiguous emails (e.g., generic subjects, multiple possible interpretations) score < 0.8
+* [ ] Confidence calculation is deterministic and testable
+* [ ] `pytest tests/test_email_classification.py::test_confidence_scoring` passes
+
+### Output
+
+* Update: `src/agents/router.py` (add confidence scoring logic)
+* Test with:
+  `pytest tests/test_email_classification.py::test_confidence_scoring -q`
+
+---
+
+### Task: 3.2.2 – Integrate LLM Client for Fallback Classification
+
+### Context
+
+* Read:
+
+  * `src/agents/prompts/router_prompt.md`
+  * `src/agents/router.py` (existing deterministic logic)
+* Reference:
+
+  * `docs/architecture.md` (LLM integration patterns)
+  * `requirements.txt` (LLM client library)
+
+### Objective
+
+Implement the LLM fallback path in `src/agents/router.py` that is triggered when deterministic classification confidence is below 0.8.
+
+### Constraints
+
+* Must use pattern-based logic (no hardcoded demo values)
+* Must include docstrings and type hints
+* Must follow existing code conventions in `src/agents/`
+* LLM client should:
+  * Load the prompt template from `router_prompt.md`
+  * Format the prompt with the parsed email content
+  * Parse the LLM response JSON to extract `event_type`, `confidence`, and `metadata`
+  * Handle LLM errors gracefully (timeout, invalid response, etc.)
+* Must support configuration for LLM endpoint/API key via environment variables
+* Should implement retry logic with exponential backoff for transient failures
+
+### Acceptance Criteria
+
+* [ ] Function `classify_with_llm(parsed_email) -> ClassificationResult` is implemented
+* [ ] LLM is only called when deterministic confidence < 0.8
+* [ ] Prompt template is loaded from `router_prompt.md` at runtime
+* [ ] LLM response is parsed correctly into `ClassificationResult`
+* [ ] Graceful error handling for LLM failures (returns error result, doesn't crash)
+* [ ] `pytest tests/test_email_classification.py::test_llm_fallback` passes (with mocked LLM)
+
+### Output
+
+* Update: `src/agents/router.py` (add LLM fallback logic)
+* Test with:
+  `pytest tests/test_email_classification.py::test_llm_fallback -q`
+
+---
+
+### Task: 3.2.3 – Add Logging and Metrics for Hybrid Router
+
+### Context
+
+* Read:
+
+  * `src/agents/router.py` (hybrid classification implementation)
+* Reference:
+
+  * `docs/architecture.md` (observability requirements)
+
+### Objective
+
+Add comprehensive logging and metrics collection to the hybrid router for monitoring classification performance, LLM usage, and debugging.
+
+### Constraints
+
+* Must use pattern-based logic (no hardcoded demo values)
+* Must include docstrings and type hints
+* Must follow existing code conventions in `src/agents/`
+* Logging should include:
+  * Classification method used (`deterministic` vs `llm`)
+  * Confidence scores (deterministic and LLM)
+  * Event type classified
+  * Time taken for classification
+  * LLM API call count (for cost tracking)
+* Metrics should be accessible for reporting:
+  * Percentage of emails classified deterministically vs LLM
+  * Average confidence scores by method
+  * Classification accuracy (when ground truth available)
+* Use Python's `logging` module with appropriate log levels
+
+### Acceptance Criteria
+
+* [ ] All classification calls are logged with method, confidence, and event type
+* [ ] LLM fallback calls are logged at INFO level with timing information
+* [ ] A `RouterMetrics` class or module tracks aggregate statistics:
+  * Total classifications
+  * Deterministic vs LLM counts
+  * Average confidence by method
+* [ ] Metrics can be retrieved for reporting (e.g., `get_router_metrics() -> dict`)
+* [ ] Log output is clean and useful for debugging without being verbose
+* [ ] `pytest tests/test_email_classification.py::test_router_logging` passes
+
+### Output
+
+* Update: `src/agents/router.py` (add logging and metrics)
+* Test with:
+  `pytest tests/test_email_classification.py::test_router_logging -q`
 
 ---
 
