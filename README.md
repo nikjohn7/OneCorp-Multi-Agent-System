@@ -71,27 +71,67 @@ pytest tests/test_end_to_end.py -v
 
 ```
 onecorp-mas/
-├── CLAUDE.md          # Instructions for Claude Code
-├── run_ui.py          # Visual dashboard launcher
-├── agent_docs/        # Implementation guides for each agent
-│   ├── extraction.md  # Extractor agent (PDF parsing, field extraction)
-│   ├── comparison.md  # Auditor agent (mismatch detection, risk scoring)
-│   ├── emails.md      # Router + Comms agents (classification, generation)
-│   ├── state-machine.md # Orchestrator (states, transitions, SLA)
-│   └── testing.md     # Test patterns and fixtures
-├── docs/              # Architecture, demo script, project plan
-├── spec/              # Problem specification & judging criteria
-├── data/              # Input files (EOI, contracts, emails)
-├── ground-truth/      # Expected outputs for validation
-├── src/               # Implementation
-│   ├── agents/        # Router, Extractor, Auditor, Comms
-│   ├── orchestrator/  # State machine, deal store, SLA monitor
-│   ├── ui/            # Visual web dashboard (Flask app)
-│   │   ├── app.py     # Flask server with SSE
-│   │   └── templates/ # HTML dashboard
-│   └── utils/         # PDF parsing, date resolution
-├── tests/             # Unit and integration tests
-└── n8n/               # Workflow export (if using n8n)
+├── CLAUDE.md              # Instructions for Claude Code
+├── AGENTS.md              # Agent architecture guidelines
+├── PROGRESS.md            # Task progress tracking
+├── QUICKSTART.md          # Quick start guide
+├── tasks.md               # Implementation task specifications
+├── run_ui.py              # Visual dashboard launcher
+├── requirements.txt       # Python dependencies
+├── agent_docs/            # Implementation guides for each agent
+│   ├── extraction.md      # Extractor agent (PDF parsing, field extraction)
+│   ├── comparison.md      # Auditor agent (mismatch detection, risk scoring)
+│   ├── emails.md          # Router + Comms agents (classification, generation)
+│   ├── state-machine.md   # Orchestrator (states, transitions, SLA)
+│   └── testing.md         # Test patterns and fixtures
+├── assets/                # Visual assets
+│   ├── architecture.svg   # System architecture diagram
+│   └── workflow_diagram.jpeg
+├── docs/                  # Project documentation
+│   ├── INDEX.md           # Documentation index
+│   ├── architecture.md    # System design document
+│   ├── demo-script.md     # Demo walkthrough guide
+│   ├── demo-recording.md  # Recording instructions
+│   └── visual-ui-guide.md # UI documentation
+├── spec/                  # Problem specification
+│   ├── MAS_Brief.md       # Full requirements
+│   ├── judging-criteria.md
+│   └── transcript.md      # Stakeholder context
+├── data/                  # Input data files
+│   ├── source-of-truth/   # EOI PDF (source document)
+│   ├── contracts/         # Contract PDFs (V1, V2)
+│   ├── emails/
+│   │   ├── incoming/      # Incoming email files to process
+│   │   └── templates/     # Output email templates
+│   └── emails_manifest.json
+├── ground-truth/          # Expected outputs for validation
+│   ├── eoi_extracted.json
+│   ├── v1_extracted.json
+│   ├── v2_extracted.json
+│   ├── v1_mismatches.json
+│   └── expected_outputs.json
+├── src/                   # Implementation
+│   ├── main.py            # Main entry point
+│   ├── agents/            # LLM agents
+│   │   ├── router.py      # Email classification
+│   │   ├── extractor.py   # PDF field extraction
+│   │   ├── auditor.py     # Contract comparison
+│   │   ├── comms.py       # Email generation
+│   │   └── prompts/       # Agent prompt templates
+│   ├── orchestrator/      # Workflow coordination
+│   │   ├── state_machine.py
+│   │   ├── deal_store.py  # SQLite persistence
+│   │   └── sla_monitor.py
+│   ├── ui/                # Visual web dashboard
+│   │   ├── app.py         # Flask server with SSE
+│   │   └── templates/     # HTML dashboard
+│   └── utils/             # Shared utilities
+│       ├── pdf_parser.py
+│       ├── email_parser.py
+│       └── date_resolver.py
+├── tests/                 # Unit and integration tests
+├── n8n/                   # Workflow export (if using n8n)
+└── prompts/               # Additional prompt files
 ```
 
 ## Understanding the System
